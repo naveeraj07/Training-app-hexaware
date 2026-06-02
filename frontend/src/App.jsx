@@ -6,8 +6,8 @@ import CreatePasswordScreen from './components/CreatePassword';
 function App() {
   return (
     <div className="app-container">
-      {/* <LoginScreen /> */}
-      <CreatePasswordScreen/>
+      <LoginScreen />
+      {/* <CreatePasswordScreen/> */}
     </div>
   );
 }
