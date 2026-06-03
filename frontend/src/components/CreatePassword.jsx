@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreatePasswordScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   // Hardcoded for UI preview, replace with routing state (e.g., location.state or query params)
   const userEmail = "h@gmail.com"; 
@@ -16,6 +18,11 @@ export default function CreatePasswordScreen() {
       return;
     }
     console.log('Password successfully set for:', userEmail);
+    
+    
+    // Simulate saving the password, then send them to login
+    alert("Password created! Please log in with your new credentials.");
+    navigate('/login');
     // Integrate your backend API network call here
   };
 
