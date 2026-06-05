@@ -1,17 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.schemas.auth import ActivateAccountRequest,LoginRequest,ForgotPasswordRequest,ResetPasswordRequest
+from app.services.auth_service import activate_account,login_user,create_user,generate_activation_token,forgot_password,reset_password
 from app.database.session import get_db
 from app.schemas.user import UserCreate, UserResponse
-from app.services.auth_service import (
-    create_user,
-    generate_activation_token
-)
+
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
 )
+
+
 
 @router.post(
     "/users",
@@ -34,6 +35,80 @@ async def create_user_endpoint(
         )
 
         return user
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    
+
+
+@router.post("/activate")
+async def activate_user(
+    data: ActivateAccountRequest,
+    db: AsyncSession = Depends(get_db)
+):
+
+    try:
+        user = await activate_account(
+            db,
+            data.token,
+            data.password
+        )
+
+        return {
+            "message": "Account activated successfully",
+            "user_id": user.id
+        }
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+
+
+@router.post("/login")
+async def login(
+    data: LoginRequest,
+    db: AsyncSession = Depends(get_db)
+):
+
+    try:
+        return await login_user(db, data.email, data.password)
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    
+
+
+@router.post("/forgot-password")
+async def forgot_password_api(
+    data: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db)
+):
+
+    return await forgot_password(db, data.email)
+
+
+
+@router.post("/reset-password")
+async def reset_password_api(
+    data: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db)
+):
+
+    try:
+        return await reset_password(
+            db,
+            data.token,
+            data.new_password
+        )
 
     except ValueError as e:
         raise HTTPException(

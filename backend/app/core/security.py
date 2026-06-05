@@ -4,8 +4,10 @@ from jose import jwt
 from passlib.context import CryptContext
 
 
-SECRET_KEY = "CHANGE_THIS_LATER"
-ALGORITHM = "HS256"
+from app.core.config import settings
+
+SECRET_KEY = settings.JWT_SECRET_KEY
+ALGORITHM = settings.JWT_ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(
@@ -40,7 +42,10 @@ def create_access_token(
         or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
 
-    to_encode.update({"exp": expire})
+    to_encode.update({
+    "exp": expire,
+    "type": "access"
+})
 
     return jwt.encode(
         to_encode,

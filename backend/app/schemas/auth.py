@@ -1,9 +1,9 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr
 
 
 class ActivateAccountRequest(BaseModel):
     token: str
-    password: str
+    password: constr(min_length=6, max_length=72)
 
 
 class LoginRequest(BaseModel):
@@ -22,4 +22,4 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str
-    password: str
+    new_password: str
