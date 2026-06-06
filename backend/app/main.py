@@ -7,7 +7,7 @@ app = FastAPI()
 
 app.include_router(auth_router)
 
-print(settings.DATABASE_URL)
+
 
 
 @app.get("/")
