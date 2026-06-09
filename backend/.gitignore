@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE
+.vscode/
+.idea/
+
+# PostgreSQL
+*.db
+
+# Alembic cache
+alembic/__pycache__/
