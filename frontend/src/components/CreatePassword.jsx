@@ -1,29 +1,69 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 
 export default function CreatePasswordScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Status states
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // Hardcoded for UI preview, replace with routing state (e.g., location.state or query params)
-  const userEmail = "h@gmail.com"; 
+  // Read token and email dynamically from the URL query parameters
+  const token = searchParams.get('token');
+  const userEmail = searchParams.get('email') || 'your account';
 
-  const handleSubmit = (e) => {
+  // Security check: If someone navigates here without a token, block them or redirect them
+  useEffect(() => {
+    if (!token) {
+      setError('Invalid or missing activation link. Please check your email or request a new link.');
+    }
+  }, [token]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+    setError('');
+    setSuccessMessage('');
+
+    if (!token) {
+      setError('Cannot submit: Activation token is missing.');
       return;
     }
-    console.log('Password successfully set for:', userEmail);
-    
-    
-    // Simulate saving the password, then send them to login
-    alert("Password created! Please log in with your new credentials.");
-    navigate('/login');
-    // Integrate your backend API network call here
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match!');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Update this URL endpoint to match your actual FastAPI/Node backend route
+      await axios.post('http://localhost:8000/auth/confirm-activation', {
+        token: token,
+        password: password
+      });
+
+      setSuccessMessage('Password successfully created! Redirecting to login...');
+      
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+
+    } catch (err) {
+      console.error('API Error:', err);
+      setError(err.response?.data?.detail || 'Failed to set password. Link may be expired.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const animationStyles = `
@@ -40,7 +80,6 @@ export default function CreatePasswordScreen() {
   `;
 
   return (
-    // MAIN CONTAINER
     <div 
       className="min-h-screen w-full bg-[#F4F7FC] font-sans"
       style={{
@@ -55,47 +94,32 @@ export default function CreatePasswordScreen() {
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
       {/* --- BACKGROUND LAYER --- */}
-      {/* Top Left Circle */}
       <div style={{
         position: 'absolute', top: '14%', left: '12%', width: '140px', height: '140px',
         backgroundColor: '#C8DAF7', borderRadius: '50%', filter: 'blur(25px)', opacity: 0.6, pointerEvents: 'none',
         animation: 'floatSlow 8s ease-in-out infinite'
       }}></div>
       
-      {/* Bottom Left Soft White Circle */}
       <div style={{
         position: 'absolute', bottom: '-5%', left: '2%', width: '340px', height: '340px',
         backgroundColor: '#FFFFFF', borderRadius: '50%', filter: 'blur(40px)', opacity: 0.5, pointerEvents: 'none',
         animation: 'floatReverse 12s ease-in-out infinite'
       }}></div>
       
-      {/* Main Right Side Blue Circle (behind the card) */}
       <div style={{
         position: 'absolute', top: '22%', right: '10%', width: '310px', height: '310px',
         backgroundColor: '#CFDDF2', borderRadius: '50%', filter: 'blur(45px)', opacity: 0.65, pointerEvents: 'none',
         animation: 'floatSlow 10s ease-in-out infinite'
       }}></div>
       
-      {/* Far Top Right Edge Circle */}
       <div style={{
         position: 'absolute', top: '8%', right: '0%', width: '170px', height: '170px',
         backgroundColor: '#D9E7F8', borderRadius: '50%', filter: 'blur(20px)', opacity: 0.7, pointerEvents: 'none',
         animation: 'floatReverse 7s ease-in-out infinite'
       }}></div>
 
-
       {/* --- MAIN CONTENT WRAPPER --- */}
-      <div 
-        className="w-full max-w-6xl mx-auto"
-        style={{
-          position: 'relative',
-          zIndex: 10,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '48px',
-          alignItems: 'center'
-        }}
-      >
+      <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
 
         {/* LEFT SIDE: Branding */}
         <div className="flex flex-col text-center lg:text-left items-center lg:items-start select-none">
@@ -107,9 +131,8 @@ export default function CreatePasswordScreen() {
           </p>
         </div>
 
-
         {/* RIGHT SIDE: White Login Card */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center' }} className="w-full">
           <div 
             className="w-full bg-white shadow-[0_20px_50px_rgba(0,0,0,0.03)]"
             style={{
@@ -118,7 +141,7 @@ export default function CreatePasswordScreen() {
               padding: '48px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '40px'
+              gap: '32px'
             }}
           >
             
@@ -132,8 +155,20 @@ export default function CreatePasswordScreen() {
               </p>
             </div>
 
+            {/* Inline Notifications */}
+            {error && (
+              <div style={{ backgroundColor: '#FEE2E2', color: '#DC2626', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '500' }}>
+                {error}
+              </div>
+            )}
+            {successMessage && (
+              <div style={{ backgroundColor: '#DCFCE7', color: '#16A34A', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '500' }}>
+                {successMessage}
+              </div>
+            )}
+
             {/* Input Form Section */}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
               {/* Field 1: New Password */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -142,7 +177,6 @@ export default function CreatePasswordScreen() {
                 </label>
                 
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
-                  {/* Lock Icon */}
                   <span style={{ position: 'absolute', left: '18px', display: 'flex', alignItems: 'center', color: '#9ca3af', pointerEvents: 'none' }}>
                     <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0V10.5m-2.25 0h13.5m-13.5 0a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25M6.75 10.5h10.5" />
@@ -155,6 +189,7 @@ export default function CreatePasswordScreen() {
                     placeholder="Create strong password" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading || !token}
                     className="w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
                     style={{
                       paddingTop: '16px',
@@ -165,7 +200,6 @@ export default function CreatePasswordScreen() {
                     required 
                   />
 
-                  {/* Toggle Password Visibility Eye Button */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -192,7 +226,6 @@ export default function CreatePasswordScreen() {
                 </label>
                 
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
-                  {/* Lock Icon */}
                   <span style={{ position: 'absolute', left: '18px', display: 'flex', alignItems: 'center', color: '#9ca3af', pointerEvents: 'none' }}>
                     <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0V10.5m-2.25 0h13.5m-13.5 0a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25M6.75 10.5h10.5" />
@@ -205,6 +238,7 @@ export default function CreatePasswordScreen() {
                     placeholder="Re-enter password" 
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isLoading || !token}
                     className="w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
                     style={{
                       paddingTop: '16px',
@@ -215,7 +249,6 @@ export default function CreatePasswordScreen() {
                     required 
                   />
 
-                  {/* Toggle Confirm Password Visibility Eye Button */}
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -238,17 +271,19 @@ export default function CreatePasswordScreen() {
               {/* Action Button */}
               <button 
                 type="submit" 
+                disabled={isLoading || !token}
                 className="w-full bg-[#0061FE] hover:bg-[#0052CC] text-white text-base font-semibold shadow-md shadow-blue-100 transition-all tracking-wide"
                 style={{
                   paddingTop: '16px',
                   paddingBottom: '16px',
                   borderRadius: '12px',
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: (isLoading || !token) ? 'not-allowed' : 'pointer',
+                  opacity: (isLoading || !token) ? 0.6 : 1,
                   marginTop: '8px'
                 }}
               >
-                Set Password
+                {isLoading ? 'Saving Password...' : 'Set Password'}
               </button>
             </form>
 

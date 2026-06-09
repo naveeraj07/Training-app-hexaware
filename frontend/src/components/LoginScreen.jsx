@@ -1,29 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function LoginScreen() {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  
+  // State for tracking API lifecycle and server messages
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  
-  // Simulated object response from your upcoming backend
-  const assignedCourseInfo = {
-    title: "Python Mastery",       // Try changing this text to verify it works!
-    subtitle: "Learn Python from scratch",
-    category: "DATA SCIENCE",
-    days: "10",
-    modules: "35",
-    startDate: "18 June, 26",
-    endDate: "28 June, 26"
-  };
+  // OPTIONAL AUTO-LOGIN: Checks if a persistent token exists when page mounts
+  useEffect(() => {
+    const existingToken = localStorage.getItem('authToken');
+    if (existingToken) {
+      // If a token is found in localStorage from a previous "Remember Me" session, 
+      // you can route them straight into the app or run a token validation check.
+      // navigate('/dashboard'); 
+    }
+  }, [navigate]);
 
-  // Pass it directly into the state wrapper
-  navigate('/register-course', { state: { courseData: assignedCourseInfo } });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // 1. Send authentication payload to backend endpoint
+      const response = await axios.post('http://localhost:8000/auth/login', {
+        user_id: userId,
+        password: password,
+        remember_me: rememberMe
+      });
+
+      // 2. Extract Bearer data and course info directly from JSON response body
+      const { token, token_type, assignedCourseInfo, isRegistered } = response.data;
+      
+      // 3. Manually store the Bearer token based on the "Remember Me" selection
+      if (token) {
+        // Format string into standard "Bearer eyJ..."
+        const formattedToken = `${token_type || 'Bearer'} ${token}`;
+        
+        if (rememberMe) {
+          // Persistent: Survives browser restarts
+          localStorage.setItem('authToken', formattedToken);
+        } else {
+          // Session-bound: Wiped out instantly when the browser tab closes
+          sessionStorage.setItem('authToken', formattedToken);
+        }
+      }
+
+      // --- ROUTING MATRIX CHECKS ---
+
+      // EDGE CASE 1: User has already accepted and finalized registration
+      if (isRegistered) {
+        navigate('/dashboard');
+        return;
+      }
+
+      // EDGE CASE 2: Account exists, but admin hasn't mapped a course yet
+      if (!assignedCourseInfo) {
+        navigate('/pending-assignment');
+        return;
+      }
+
+      // STANDARD CASE: User has an unconfirmed course assignment ready to view
+      navigate('/register-course', { 
+        state: { courseData: assignedCourseInfo } 
+      });
+
+    } catch (err) {
+      console.error('Login Submission Error:', err);
+      // Grabs detailed feedback text string from backend exceptions
+      setError(err.response?.data?.detail || err.response?.data?.message || 'Invalid User ID or Password.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const animationStyles = `
@@ -40,7 +96,6 @@ export default function LoginScreen() {
   `;
 
   return (
-    // MAIN CONTAINER
     <div 
       className="min-h-screen w-full bg-[#F4F7FC] font-sans"
       style={{
@@ -54,7 +109,7 @@ export default function LoginScreen() {
     >
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* --- BACKGROUND LAYER --- */}
+      {/* --- BACKGROUND BLUR LAYER --- */}
       <div style={{
         position: 'absolute', top: '14%', left: '12%', width: '140px', height: '140px',
         backgroundColor: '#C8DAF7', borderRadius: '50%', filter: 'blur(25px)', opacity: 0.6, pointerEvents: 'none',
@@ -79,7 +134,7 @@ export default function LoginScreen() {
         animation: 'floatReverse 7s ease-in-out infinite'
       }}></div>
 
-      {/* --- MAIN CONTENT WRAPPER --- */}
+      {/* --- MAIN CONTENT GRID WRAPPER --- */}
       <div 
         className="w-full max-w-6xl mx-auto"
         style={{
@@ -91,8 +146,8 @@ export default function LoginScreen() {
           alignItems: 'center'
         }}
       >
-{/* LEFT SIDE: Branding */}
-<div className="flex flex-col items-center text-center md:items-start md:text-left select-none">
+        {/* LEFT SIDE: Branding Statement */}
+        <div className="flex flex-col items-center text-center md:items-start md:text-left select-none">
           <h1 
             className="text-[72px] md:text-[88px] font-black text-[#0061FE] tracking-tight leading-none"
             style={{ marginBottom: '24px' }}
@@ -104,8 +159,8 @@ export default function LoginScreen() {
           </p>
         </div>
 
-        {/* RIGHT SIDE: White Login Card */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {/* RIGHT SIDE: White Login Form Card */}
+        <div style={{ display: 'flex', justifyContent: 'center' }} className="w-full">
           <div 
             className="w-full bg-white shadow-[0_20px_50px_rgba(0,0,0,0.03)]"
             style={{
@@ -118,7 +173,7 @@ export default function LoginScreen() {
             }}
           >
             
-            {/* Header Text Grouping */}
+            {/* Header Text */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <h2 className="text-[32px] font-bold text-[#0061FE] tracking-tight leading-tight">
                 Welcome to Hexaware
@@ -128,7 +183,22 @@ export default function LoginScreen() {
               </p>
             </div>
 
-            {/* Input Form Section */}
+            {/* Error Notification Block */}
+            {error && (
+              <div style={{ 
+                backgroundColor: '#FEE2E2', 
+                color: '#DC2626', 
+                padding: '14px 18px', 
+                borderRadius: '14px', 
+                fontSize: '13px', 
+                fontWeight: '500', 
+                marginTop: '-12px' 
+              }}>
+                {error}
+              </div>
+            )}
+
+            {/* Input Form Fields */}
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
               
               {/* Field 1: User ID */}
@@ -150,12 +220,14 @@ export default function LoginScreen() {
                     placeholder="Enter your user ID" 
                     value={userId}
                     onChange={(e) => setUserId(e.target.value)}
+                    disabled={isLoading}
                     className="w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
                     style={{
                       paddingTop: '16px',
                       paddingBottom: '16px',
                       paddingLeft: '52px',
-                      paddingRight: '16px'
+                      paddingRight: '16px',
+                      opacity: isLoading ? 0.6 : 1
                     }}
                     required 
                   />
@@ -181,20 +253,24 @@ export default function LoginScreen() {
                     placeholder="Enter your password" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
                     className="w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
                     style={{
                       paddingTop: '16px',
                       paddingBottom: '16px',
                       paddingLeft: '52px',
-                      paddingRight: '52px'
+                      paddingRight: '52px',
+                      opacity: isLoading ? 0.6 : 1
                     }}
                     required 
                   />
 
+                  {/* Toggle Visibility Button */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    style={{ position: 'absolute', right: '18px', background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}
+                    disabled={isLoading}
+                    style={{ position: 'absolute', right: '18px', background: 'none', border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer', color: '#9ca3af' }}
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
@@ -212,11 +288,12 @@ export default function LoginScreen() {
 
               {/* Options Row: Remember Me & Forgot Password */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '-8px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: isLoading ? 'not-allowed' : 'pointer' }}>
                   <input 
                     type="checkbox" 
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
+                    disabled={isLoading}
                     className="w-4 h-4 text-[#0061FE] bg-[#F1F5F9] border-gray-300 rounded focus:ring-[#0061FE]"
                   />
                   <span className="text-sm text-gray-600 font-medium select-none">Remember me</span>
@@ -227,20 +304,22 @@ export default function LoginScreen() {
                 </a>
               </div>
 
-              {/* Action Button */}
+              {/* Submit Trigger Action Button */}
               <button 
                 type="submit" 
+                disabled={isLoading}
                 className="w-full bg-[#0061FE] hover:bg-[#0052CC] text-white text-base font-semibold shadow-md shadow-blue-100 transition-all tracking-wide"
                 style={{
                   paddingTop: '16px',
                   paddingBottom: '16px',
                   borderRadius: '12px',
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.7 : 1,
                   marginTop: '8px'
                 }}
               >
-                Sign In
+                {isLoading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
           </div>
