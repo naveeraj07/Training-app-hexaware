@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function LoginScreen() {
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -25,62 +25,47 @@ export default function LoginScreen() {
   }, [navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  e.preventDefault();
+  setError('');
+  setIsLoading(true);
 
-    try {
-      // 1. Send authentication payload to backend endpoint
-      const response = await axios.post('http://localhost:8000/auth/login', {
-        user_id: userId,
-        password: password,
-        remember_me: rememberMe
-      });
+  try {
+    const response = await axios.post(
+      'http://localhost:8000/auth/login',
+      {
+        email: email,
+        password: password
+      }
+    );
 
-      // 2. Extract Bearer data and course info directly from JSON response body
-      const { token, token_type, assignedCourseInfo, isRegistered } = response.data;
-      
-      // 3. Manually store the Bearer token based on the "Remember Me" selection
-      if (token) {
-        // Format string into standard "Bearer eyJ..."
-        const formattedToken = `${token_type || 'Bearer'} ${token}`;
-        
-        if (rememberMe) {
-          // Persistent: Survives browser restarts
-          localStorage.setItem('authToken', formattedToken);
-        } else {
-          // Session-bound: Wiped out instantly when the browser tab closes
-          sessionStorage.setItem('authToken', formattedToken);
-        }
+    const { access_token, token_type, user } = response.data;
+
+    if (access_token) {
+      const formattedToken = `${token_type} ${access_token}`;
+
+      if (rememberMe) {
+        localStorage.setItem('authToken', formattedToken);
+      } else {
+        sessionStorage.setItem('authToken', formattedToken);
       }
 
-      // --- ROUTING MATRIX CHECKS ---
-
-      // EDGE CASE 1: User has already accepted and finalized registration
-      if (isRegistered) {
-        navigate('/dashboard');
-        return;
-      }
-
-      // EDGE CASE 2: Account exists, but admin hasn't mapped a course yet
-      if (!assignedCourseInfo) {
-        navigate('/pending-assignment');
-        return;
-      }
-
-      // STANDARD CASE: User has an unconfirmed course assignment ready to view
-      navigate('/register-course', { 
-        state: { courseData: assignedCourseInfo } 
-      });
-
-    } catch (err) {
-      console.error('Login Submission Error:', err);
-      // Grabs detailed feedback text string from backend exceptions
-      setError(err.response?.data?.detail || err.response?.data?.message || 'Invalid User ID or Password.');
-    } finally {
-      setIsLoading(false);
+      localStorage.setItem('user', JSON.stringify(user));
     }
-  };
+    alert('Login Successful!');
+    navigate('/dashboard');
+
+  } catch (err) {
+    console.error('Login Submission Error:', err);
+
+    setError(
+      err.response?.data?.detail ||
+      err.response?.data?.message ||
+      'Invalid email or password.'
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const animationStyles = `
     @keyframes floatSlow {
@@ -203,8 +188,8 @@ export default function LoginScreen() {
               
               {/* Field 1: User ID */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label htmlFor="userId" className="text-[11px] font-bold text-gray-800 tracking-widest uppercase">
-                  USER ID
+                <label htmlFor="email" className="text-[11px] font-bold text-gray-800 tracking-widest uppercase">
+                  EMAIL
                 </label>
                 
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -214,23 +199,23 @@ export default function LoginScreen() {
                     </svg>
                   </span>
                   
-                  <input 
-                    type="text" 
-                    id="userId" 
-                    placeholder="Enter your user ID" 
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
-                    style={{
-                      paddingTop: '16px',
-                      paddingBottom: '16px',
-                      paddingLeft: '52px',
-                      paddingRight: '16px',
-                      opacity: isLoading ? 0.6 : 1
-                    }}
-                    required 
-                  />
+                  <input
+  type="email"
+  id="email"
+  placeholder="Enter your email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  disabled={isLoading}
+  className="w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
+  style={{
+    paddingTop: '16px',
+    paddingBottom: '16px',
+    paddingLeft: '52px',
+    paddingRight: '16px',
+    opacity: isLoading ? 0.6 : 1
+  }}
+  required
+/>
                 </div>
               </div>
 
@@ -247,23 +232,23 @@ export default function LoginScreen() {
                     </svg>
                   </span>
                   
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    id="password" 
-                    placeholder="Enter your password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
-                    style={{
-                      paddingTop: '16px',
-                      paddingBottom: '16px',
-                      paddingLeft: '52px',
-                      paddingRight: '52px',
-                      opacity: isLoading ? 0.6 : 1
-                    }}
-                    required 
-                  />
+                <input
+  type={showPassword ? "text" : "password"}
+  id="password"
+  placeholder="Enter your password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  disabled={isLoading}
+  className="w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
+  style={{
+    paddingTop: '16px',
+    paddingBottom: '16px',
+    paddingLeft: '52px',
+    paddingRight: '52px',
+    opacity: isLoading ? 0.6 : 1
+  }}
+  required
+/>
 
                   {/* Toggle Visibility Button */}
                   <button
