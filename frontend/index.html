@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hexaware - Training Dashboard</title>
+  
+  <!-- Font integration (Inter & Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./pages/Home/home.css">
+  <link rel="stylesheet" href="./pages/Course/course.css">
+  <link rel="stylesheet" href="./pages/Schedule/schedule.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1 class="logo">Hexaware</h1>
+      </div>
+      
+      <!-- User profile info -->
+      <div class="user-profile-card">
+        <div class="profile-info">
+          <span class="user-label">Name</span>
+          <span class="user-name" id="user-display-name">Name</span>
+          <span class="user-email" id="user-display-email">h.tech@email.com</span>
+        </div>
+      </div>
+      
+      <!-- Nav menu list -->
+      <nav class="nav-menu">
+        <ul>
+          <li>
+            <a href="#home" class="nav-item active" data-page="home">
+              <i data-lucide="home" class="nav-icon"></i>
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="#course" class="nav-item" data-page="course">
+              <i data-lucide="book-open" class="nav-icon"></i>
+              <span>Course</span>
+            </a>
+          </li>
+          <li>
+            <a href="#schedule" class="nav-item" data-page="schedule">
+              <i data-lucide="clock" class="nav-icon"></i>
+              <span>Schedule</span>
+            </a>
+          </li>
+          <li>
+            <a href="#progress" class="nav-item" data-page="progress">
+              <i data-lucide="star" class="nav-icon"></i>
+              <span>Progress</span>
+            </a>
+          </li>
+          <li>
+            <a href="#notes" class="nav-item" data-page="notes">
+              <i data-lucide="file-text" class="nav-icon"></i>
+              <span>Notes</span>
+            </a>
+          </li>
+          <li>
+            <a href="#profile" class="nav-item" data-page="profile">
+              <i data-lucide="user" class="nav-icon"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <!-- Logout at bottom -->
+      <div class="sidebar-footer">
+        <a href="#logout" class="nav-item logout-btn" data-page="logout">
+          <i data-lucide="log-out" class="nav-icon"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="main-content" id="app-content">
+      <!-- Dynamic pages will render here -->
+    </main>
+  </div>
+
+  <!-- SPA Router script -->
+  <script type="module">
+    import dashboardService from './services/dashboardService.js';
+    import courseService from './services/courseService.js';
+    import scheduleService from './services/scheduleService.js';
+    
+    import homePage from './pages/Home/home.js';
+    import coursePage from './pages/Course/course.js';
+    import schedulePage from './pages/Schedule/schedule.js';
+    import placeholderPage from './pages/Placeholder/placeholder.js';
+
+    // Router class handling navigation
+    class Router {
+      constructor() {
+        this.appContent = document.getElementById('app-content');
+        this.navItems = document.querySelectorAll('.nav-item');
+        
+        this.routes = {
+          home: homePage,
+          course: coursePage,
+          schedule: schedulePage,
+          progress: {
+            render: (container) => placeholderPage.render(container, 'Progress', 'Track your learning milestones and statistics.')
+          },
+          notes: {
+            render: (container) => placeholderPage.render(container, 'Notes', 'Manage your course notes and key highlights.')
+          },
+          profile: {
+            render: (container) => placeholderPage.render(container, 'Profile', 'View and update your student profile information.')
+          },
+          logout: {
+            render: (container) => placeholderPage.render(container, 'Logged Out', 'You have been successfully logged out.')
+          }
+        };
+
+        this.init();
+      }
+
+      init() {
+        // Handle hash navigation
+        window.addEventListener('hashchange', () => this.handleRoute());
+        
+        // Listen to sidebar clicks directly
+        this.navItems.forEach(item => {
+          item.addEventListener('click', (e) => {
+            const page = item.getAttribute('data-page');
+            if (page) {
+              window.location.hash = page;
+            }
+          });
+        });
+
+        // Set initial user info from service
+        const profile = dashboardService.getUserProfile();
+        document.getElementById('user-display-name').textContent = profile.name;
+        document.getElementById('user-display-email').textContent = profile.email;
+
+        // Set default hash to #home if none is present
+        if (!window.location.hash) {
+          window.location.hash = 'home';
+        } else {
+          this.handleRoute();
+        }
+      }
+
+      handleRoute() {
+        const hash = window.location.hash.substring(1) || 'home';
+        const page = this.routes[hash] || this.routes.home;
+
+        // Update active class on sidebar items
+        this.navItems.forEach(item => {
+          if (item.getAttribute('data-page') === hash) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active');
+          }
+        });
+
+        // Clear and render new content
+        this.appContent.innerHTML = '';
+        
+        // Render content
+        page.render(this.appContent);
+
+        // Re-initialize lucide icons inside container
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      }
+    }
+
+    // Start router when DOM is fully loaded
+    window.addEventListener('DOMContentLoaded', () => {
+      new Router();
+    });
+  </script>
+</body>
+</html>
