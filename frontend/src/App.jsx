@@ -5,6 +5,8 @@ import CreatePasswordScreen from './components/CreatePassword';
 import SignUp from './components/SignUp';
 import LoginScreen from './components/LoginScreen';
 import RegisterCourse from './components/RegisterCourse';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/create-password" element={<CreatePasswordScreen />} />
           <Route path="/register-course" element={<RegisterCourse />} />
+          <Route path="/forgot-password" element={<ForgotPassword/>}/>
+          <Route path="/reset-password" element={<ResetPassword/>}/>
           
           {/* Catch-all route to redirect unknown URLs back to login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
