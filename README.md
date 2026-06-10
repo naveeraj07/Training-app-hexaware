@@ -58,13 +58,13 @@ venv\Scripts\activate
 # Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 If requirements.txt is not available:
 
 ```bash
-pip install fastapi uvicorn sqlalchemy asyncpg alembic pydantic python-jose passlib[bcrypt] python-dotenv email-validator
+python -m pip install fastapi uvicorn sqlalchemy asyncpg alembic pydantic python-jose passlib[bcrypt] python-dotenv email-validator
 ```
 
 ---
@@ -76,10 +76,14 @@ Create a `.env` file inside the backend folder.
 Example:
 
 ```env
-DATABASE_URL=your_database_url
-SECRET_KEY=your_secret_key
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+DATABASE_URL=postgresql+asyncpg://neondb_owner:npg_RGdnVHkb34vC@ep-weathered-flower-aowym7f1-pooler.c-2.ap-southeast-1.aws.neon.tech/hexaware
+JWT_SECRET_KEY=testsecretkey
+JWT_ALGORITHM=HS256
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=test@gmail.com
+MAIL_PASSWORD=testpassword
+MAIL_FROM=test@gmail.com
 ```
 
 Use your own PostgreSQL database URL.
@@ -91,13 +95,13 @@ Use your own PostgreSQL database URL.
 ## Create Migration
 
 ```bash
-alembic revision --autogenerate -m "initial migration"
+pyhton -m alembic revision --autogenerate -m "initial migration"
 ```
 
 ## Apply Migration
 
 ```bash
-alembic upgrade head
+pyhton -m alembic upgrade head
 ```
 
 ---
@@ -167,11 +171,6 @@ http://127.0.0.1:8000
 
 ---
 
-
-
-`.env` is intentionally not ignored so that team members can configure and use their own database connection if required.
-
----
 
 # Start Development
 
