@@ -76,7 +76,7 @@ Create a `.env` file inside the backend folder.
 Example:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://postgres:password@localhost:5432/db_name
+DATABASE_URL=postgresql+asyncpg://neondb_owner:npg_RGdnVHkb34vC@ep-weathered-flower-aowym7f1-pooler.c-2.ap-southeast-1.aws.neon.tech/hexaware
 JWT_SECRET_KEY=testsecretkey
 JWT_ALGORITHM=HS256
 MAIL_SERVER=smtp.gmail.com
