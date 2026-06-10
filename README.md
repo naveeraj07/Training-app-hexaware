@@ -92,11 +92,6 @@ Use your own PostgreSQL database URL.
 
 # Database Migration
 
-## Create Migration
-
-```bash
-pyhton -m alembic revision --autogenerate -m "initial migration"
-```
 
 ## Apply Migration
 
