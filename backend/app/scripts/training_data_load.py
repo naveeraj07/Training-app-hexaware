@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, text
 DATABASE_URL = "postgresql://neondb_owner:npg_RGdnVHkb34vC@ep-weathered-flower-aowym7f1-pooler.c-2.ap-southeast-1.aws.neon.tech/hexaware"
 
 
-EXCEL_FILE = r"C:\Users\daksh\Videos\course module\Training-app-hexaware\backend\app\scripts\2026_Mavericks_Segue_Training Plan - JAVA.xlsx"
+EXCEL_FILE = r"\backend\app\scripts\2026_Mavericks_Segue_Training Plan - JAVA.xlsx"
 
 SHEET_NAME = "Java_Digital_Foundation_Scope"  
 
