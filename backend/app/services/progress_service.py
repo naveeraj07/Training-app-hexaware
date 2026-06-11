@@ -122,3 +122,64 @@ async def mark_learning_unit_incomplete(
     return {
         "message": "Learning unit marked as incomplete"
     }
+
+from sqlalchemy import func
+
+async def get_learning_timeline_data(
+    db: AsyncSession,
+    user_id: int
+):
+
+    result = await db.execute(
+        select(
+            CourseDay.day_number,
+            func.count(
+                Progress.id
+            ).label(
+                "completed_units"
+            ),
+            func.coalesce(
+                func.sum(
+                    LearningUnit.duration_minutes
+                ),
+                0
+            ).label(
+                "learning_minutes"
+            )
+        )
+        .join(
+            LearningUnit,
+            Progress.learning_unit_id
+            ==
+            LearningUnit.id
+        )
+        .join(
+            CourseDay,
+            LearningUnit.day_id
+            ==
+            CourseDay.id
+        )
+        .where(
+            Progress.user_id
+            ==
+            user_id,
+            Progress.is_completed.is_(True)
+        )
+        .group_by(
+            CourseDay.day_number
+        )
+        .order_by(
+            CourseDay.day_number
+        )
+    )
+
+    rows = result.all()
+
+    return [
+        {
+            "day_number": row.day_number,
+            "completed_units": row.completed_units,
+            "learning_minutes": row.learning_minutes
+        }
+        for row in rows
+    ]
