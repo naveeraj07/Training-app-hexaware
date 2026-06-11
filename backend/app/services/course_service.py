@@ -8,6 +8,7 @@ from app.models.learning_unit import LearningUnit
 from app.models.video import Video
 from app.models.content import Content
 from app.models.enrollment import Enrollment
+from sqlalchemy import func
 
 
 async def get_all_courses(
@@ -190,3 +191,4 @@ async def get_user_courses(
     )
 
     return result.all()
+
