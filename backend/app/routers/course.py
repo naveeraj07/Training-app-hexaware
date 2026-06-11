@@ -14,9 +14,7 @@ from app.services.course_service import (
     enroll_user_in_course,
     get_user_courses
 )
-from app.services.progress_service import (
-    get_course_progress
-)
+
 from app.services.lesson_service import (
     get_qa_by_learning_unit,
     get_notes_by_learning_unit
@@ -55,26 +53,6 @@ async def get_course(
             status_code=404,
             detail=str(e)
         )
-@router.post("/enroll")
-async def enroll_course(
-    enrollment: EnrollmentRequest,
-    db: AsyncSession = Depends(get_db)
-):
-
-    try:
-
-        return await enroll_user_in_course(
-            db,
-            enrollment.user_id,
-            enrollment.course_id
-        )
-
-    except ValueError as e:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )   
     
 @router.get("/users/{user_id}")
 async def get_courses_by_user(
@@ -135,7 +113,6 @@ async def get_units(
         day_id
     )
 
-
 @router.get("/units/{learning_unit_id}/content")
 async def get_content(
     learning_unit_id: int,
@@ -160,19 +137,6 @@ async def get_videos(
     )
 
 
-@router.get("/{course_id}/progress/{user_id}")
-async def get_progress(
-    course_id: int,
-    user_id: int,
-    db: AsyncSession = Depends(get_db)
-):
-
-    return await get_course_progress(
-        db,
-        course_id,
-        user_id
-    )
-
 @router.get("/units/{learning_unit_id}/qa")
 async def get_qa(
     learning_unit_id: int,
@@ -192,3 +156,24 @@ async def get_notes(
         learning_unit_id
     )
 
+
+@router.post("/enroll")
+async def enroll_course(
+    enrollment: EnrollmentRequest,
+    db: AsyncSession = Depends(get_db)
+):
+
+    try:
+
+        return await enroll_user_in_course(
+            db,
+            enrollment.user_id,
+            enrollment.course_id
+        )
+
+    except ValueError as e:
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )   
