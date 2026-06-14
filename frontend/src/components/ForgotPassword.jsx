@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // 👈 Added Link import
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-export default function SignUp() {
+export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isEmailSent, setIsEmailSent] = useState(false); // Tracks if form should switch to success screen
+  const [isEmailSent, setIsEmailSent] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
@@ -14,16 +14,17 @@ export default function SignUp() {
     setIsLoading(true);
     
     try {
-      await axios.post('http://localhost:8000/auth/request-activation', {
+      // Calls the forgot-password endpoint as per your specs
+      await axios.post('http://localhost:8000/auth/forgot-password', {
         email: email
       });
       
-      // Update state to show the verification/check email UI instead of redirecting
+      // Update state to show the success UI
       setIsEmailSent(true);
 
     } catch (err) {
       console.error('API Error:', err);
-      setError(err.response?.data?.detail || 'Something went wrong. Please check your connection.');
+      setError(err.response?.data?.detail || err.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +57,7 @@ export default function SignUp() {
     >
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* --- BACKGROUND LAYER: Glow Effects --- */}
+      {/* --- BACKGROUND LAYER --- */}
       <div style={{
         position: 'absolute', top: '14%', left: '12%', width: '140px', height: '140px',
         backgroundColor: '#C8DAF7', borderRadius: '50%', filter: 'blur(25px)', opacity: 0.6, pointerEvents: 'none',
@@ -109,17 +110,14 @@ export default function SignUp() {
           >
             
             {!isEmailSent ? (
-              /* --- STATE A: SHOW SIGNUP INPUT FORM --- */
+              /* --- STATE A: ENTER EMAIL FORM --- */
               <>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <h2 className="text-[34px] font-bold text-gray-900 tracking-tight leading-tight">
-                    Welcome to Hexaware
+                    Forgot Password
                   </h2>
-                  <h3 className="text-xs font-bold text-[#0061FE] tracking-widest uppercase mt-1">
-                    Let's Get Started
-                  </h3>
-                  <p className="text-sm text-gray-400 font-normal mt-1">
-                    Enter your email address to continue
+                  <p className="text-sm text-gray-500 font-normal mt-1 leading-relaxed">
+                    Enter your email address and we'll send you a link to reset your password.
                   </p>
                 </div>
 
@@ -175,32 +173,23 @@ export default function SignUp() {
                       opacity: isLoading ? 0.7 : 1
                     }}
                   >
-                    {isLoading ? 'Processing...' : 'Continue'}
+                    {isLoading ? 'Sending Link...' : 'Send Reset Link'}
                   </button>
 
-                  {/* 👈 NEW LOGIN LINK SECTION ADDED HERE */}
-                  <div className="text-center mt-2 mb-2">
-                    <span className="text-sm text-gray-600 font-medium select-none">
-                      Already have an account?{' '}
-                    </span>
-                    <Link to="/login" className="text-sm font-semibold text-[#0061FE] hover:underline transition-all">
-                      Sign in
+                  {/* Back to Login Link */}
+                  <div className="text-center mt-2">
+                    <Link to="/login" className="text-sm font-semibold text-gray-500 hover:text-[#0061FE] transition-all flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                      </svg>
+                      Back to Sign In
                     </Link>
                   </div>
-
                 </form>
-
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', width: '100%' }}>
-                  <p className="text-[11px] text-gray-400 leading-relaxed max-w-xs select-none">
-                    By continuing, you agree to our <br />
-                    <a href="#terms" className="font-semibold text-gray-500 hover:text-[#0061FE] hover:underline">Terms of Service</a> and <a href="#privacy" className="font-semibold text-gray-500 hover:text-[#0061FE] hover:underline">Privacy Policy</a>
-                  </p>
-                </div>
               </>
             ) : (
-              /* --- STATE B: SHOW SUCCESS / CHECK EMAIL UI --- */
+              /* --- STATE B: SUCCESS / CHECK EMAIL UI --- */
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '24px' }}>
-                {/* Paper Airplane/Mail Sent Success Icon */}
                 <div style={{ backgroundColor: '#DCFCE7', padding: '20px', borderRadius: '50%', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg className="w-12 height-12" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" style={{ width: '48px', height: '48px' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
@@ -212,17 +201,32 @@ export default function SignUp() {
                     Check your email
                   </h2>
                   <p className="text-sm text-gray-500 font-normal max-w-sm">
-                    We've sent an activation link to <span className="font-semibold text-gray-950">{email}</span>. Please click the link in the email to set up your password and complete your registration.
+                    If an account exists for <span className="font-semibold text-gray-950">{email}</span>, we've sent a password reset link. Please check your inbox.
                   </p>
                 </div>
 
-                <button 
-                  type="button"
-                  onClick={() => setIsEmailSent(false)}
-                  className="text-sm font-semibold text-[#0061FE] hover:text-[#0052CC] hover:underline mt-2 bg-transparent border-none cursor-pointer"
-                >
-                  Change email address or resend
-                </button>
+                <div className="flex flex-col gap-4 mt-2 w-full">
+                  <Link 
+                    to="/login"
+                    className="w-full bg-[#0061FE] hover:bg-[#0052CC] text-white text-base font-semibold shadow-md shadow-blue-100 transition-all tracking-wide text-center"
+                    style={{
+                      paddingTop: '16px',
+                      paddingBottom: '16px',
+                      borderRadius: '12px',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    Return to Sign In
+                  </Link>
+                  
+                  <button 
+                    type="button"
+                    onClick={() => setIsEmailSent(false)}
+                    className="text-sm font-semibold text-gray-500 hover:text-[#0061FE] hover:underline bg-transparent border-none cursor-pointer"
+                  >
+                    Didn't receive the email? Try again
+                  </button>
+                </div>
               </div>
             )}
 
