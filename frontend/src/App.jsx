@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import dashboardService from './services/dashboardService';
 import Icon from './components/Icon';
 import Home from './pages/Home';

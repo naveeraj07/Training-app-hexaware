@@ -1,4 +1,4 @@
-import React from 'react';
+import { Fragment } from 'react';
 import scheduleService from '../services/scheduleService';
 import Icon from '../components/Icon';
 
@@ -68,14 +68,14 @@ export default function Schedule() {
           {data.timeSlots.map((slot, rowIndex) => {
             // Find events for each day in this timeslot
             return (
-              <React.Fragment key={rowIndex}>
+              <Fragment key={rowIndex}>
                 {/* Time slot indicator cell */}
                 <div className="timetable-time-cell">
                   {slot.split('\n').map((line, idx) => (
-                    <React.Fragment key={idx}>
+                    <Fragment key={idx}>
                       {line}
                       {idx < slot.split('\n').length - 1 && <br />}
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                 </div>
 
@@ -98,7 +98,7 @@ export default function Schedule() {
                     return <div key={dayIndex} className="timetable-grid-cell"></div>;
                   }
                 })}
-              </React.Fragment>
+              </Fragment>
             );
           })}
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import courseService from '../services/courseService';
 import Icon from '../components/Icon';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Home,
   BookOpen,
@@ -18,7 +17,16 @@ import {
   Share2,
   Download,
   Layers,
-  Layout
+  Layout,
+  Activity,
+  Lock,
+  Info,
+  ChevronRight,
+  Key,
+  Sun,
+  Bell,
+  Edit3,
+  Plus
 } from 'lucide-react';
 
 const iconMap = {
@@ -40,7 +48,16 @@ const iconMap = {
   'share-2': Share2,
   'download': Download,
   'layers': Layers,
-  'layout': Layout
+  'layout': Layout,
+  'activity': Activity,
+  'lock': Lock,
+  'info': Info,
+  'chevron-right': ChevronRight,
+  'key': Key,
+  'sun': Sun,
+  'bell': Bell,
+  'edit-3': Edit3,
+  'plus': Plus
 };
 
 export default function Icon({ name, ...props }) {

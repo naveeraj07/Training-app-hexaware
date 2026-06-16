@@ -94,6 +94,64 @@ const dashboardService = {
         { day: 12, percentage: 48 }
       ]
     };
+  },
+
+  getProgressOverview() {
+    return {
+      percentage: 58,
+      completedModules: 48,
+      totalModules: 48,
+      completedAssessments: 2,
+      totalAssessments: 3,
+      insights: [
+        {
+          title: "You learn best at 9:00 AM",
+          description: "Based on your completion patterns"
+        },
+        {
+          title: "20% ahead of average pace",
+          description: "You're making excellent progress!"
+        },
+        {
+          title: "Estimated completion: May 22, 2026",
+          description: "2 days earlier than scheduled"
+        }
+      ],
+      assessments: [
+        {
+          id: "java-basics",
+          title: "Java Basics Quiz",
+          status: "Passed",
+          score: 85,
+          total: 100,
+          details: "Score: 85/100"
+        },
+        {
+          id: "oop-mid",
+          title: "OOP Mid-Assessment",
+          status: "Passed",
+          score: 78,
+          total: 100,
+          details: "Score: 78/100"
+        },
+        {
+          id: "data-structures",
+          title: "Data Structures Quiz",
+          status: "Upcoming",
+          score: null,
+          total: null,
+          details: "Not yet taken"
+        }
+      ]
+    };
+  },
+
+  getProfileData() {
+    return {
+      name: "Name",
+      email: "hexaware.tech@email.com",
+      sidebarEmail: "h.tech@email.com"
+    };
   }
 };
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import dashboardService from '../services/dashboardService';
 import Icon from '../components/Icon';
 
