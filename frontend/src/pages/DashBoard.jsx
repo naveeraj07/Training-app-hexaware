@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import dashboardService from './services/dashboardService';
-import Icon from './components/Icon';
-import Home from './pages/Home';
-import Course from './pages/Course';
-import Schedule from './pages/Schedule';
-import Placeholder from './pages/Placeholder';
+import dashboardService from '../services/dashboardService.js';
+import Icon from '../components/Icon';
+import Home from '../pages/Home';
+import Course from '../pages/Course';
+import Schedule from '../pages/Schedule';
+import Placeholder from '../pages/Placeholder';
 
-export default function App() {
+export default function DashBoard() {
   const profile = dashboardService.getUserProfile();
   
   // Hash routing state
