@@ -1,12 +1,14 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
-import CreatePasswordScreen from './components/CreatePassword';
-import SignUp from './components/SignUp';
-import LoginScreen from './components/LoginScreen';
-import RegisterCourse from './components/RegisterCourse';
-import ForgotPassword from './components/ForgotPassword';
-import ResetPassword from './components/ResetPassword';
+import CreatePasswordScreen from './pages/CreatePassword';
+import SignUp from './pages/SignUp';
+import LoginScreen from './pages/LoginScreen';
+import RegisterCourse from './pages/RegisterCourse';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import DashBoard from './pages/DashBoard';
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
           <Route path="/register-course" element={<RegisterCourse />} />
           <Route path="/forgot-password" element={<ForgotPassword/>}/>
           <Route path="/reset-password" element={<ResetPassword/>}/>
+          <Route path="/dashboard" element={<DashBoard/>}/>
           
           {/* Catch-all route to redirect unknown URLs back to login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
@@ -33,3 +36,4 @@ function App() {
 }
 
 export default App;
+
