@@ -61,9 +61,11 @@ export default function Course() {
         setProgressPercentage(progressData.progress_percentage || 58); // Default fallback placeholder to match user interface visual assets
 
         // Pre-populate completed lessons from user history records
-        if (progressData.completed_units) {
-          setCompletedLessons(new Set(progressData.completed_units));
-        }
+       if (Array.isArray(progressData.completed_units)) {
+  setCompletedLessons(new Set(progressData.completed_units));
+} else if (progressData.completed_units) {
+  setCompletedLessons(new Set([progressData.completed_units]));
+}
         
       } catch (err) {
         console.error("Failed to fetch course data:", err);
