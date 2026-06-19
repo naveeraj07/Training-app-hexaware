@@ -201,6 +201,7 @@
 .lesson-row-action-row {
   display: flex;
   gap: 8px;
+  margin-top: 12px;
 }
 
 .action-pill-btn {
@@ -304,9 +305,8 @@
   position: relative;
   width: 100%;
   max-width: 1000px;
-  /* 📐 ADJUST THIS RATIO TO CHANGE THE HEIGHT OF THE PLAYER */
   aspect-ratio: 16 / 9; 
-  min-height: 500px; /* 👈 INCREASING THIS VALUE MAKES THE PLAYER TALLER */
+  min-height: 500px; 
   background-color: #000000;
   border-radius: 16px;
   overflow: hidden;
@@ -326,7 +326,7 @@
 .dashboard-active-video-element {
   width: 100%;
   height: 100%;
-  object-fit: cover;           /* 👈 🔑 CHANGES FROM 'contain' TO 'cover' TO REMOVE BLACK BARS */
+  object-fit: cover; 
   background-color: #000000;
   outline: none;
   border: none;
@@ -365,7 +365,7 @@
   border-radius: 16px;
   padding: 24px;
   width: 100%;
-  max-width: 1200px;           /* 👈 Match the video width so they stay aligned */
+  max-width: 1200px; 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
   margin-bottom: 48px;
   box-sizing: border-box;
@@ -532,4 +532,224 @@
   color: #475569;
   margin: 0;
   line-height: 1.5;
+}
+
+/* ==========================================================================
+   [NEW] REFACTORED CLASSES TO ELIMINATE INLINE STYLES
+   ========================================================================== */
+
+/* Integrated Variant Option 2: Lesson Row Secondary Notes Button */
+.variant-secondary-notes {
+  display: flex;
+  align-items: center;
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.variant-secondary-notes:hover {
+  background-color: #e2e8f0;
+}
+
+/* Full Course Overview Text Information Card */
+.course-overview-detail-panel {
+  padding: 32px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  color: #334155;
+}
+
+.course-overview-detail-panel h3 {
+  margin: 0 0 12px 0;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+.course-overview-detail-panel p {
+  line-height: 1.7;
+  font-size: 15px;
+  color: #475569;
+  margin-bottom: 24px;
+  white-space: pre-wrap;
+}
+
+/* Overview Metadata Grid Block Layout */
+.overview-metadata-grid-block {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.overview-grid-cell-title {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.overview-grid-cell-value {
+  margin: 0;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.overview-grid-cell-value.status-active {
+  color: #16a34a;
+}
+/* ==========================================================================
+   VIEW 1B: TWO-COLUMN DESIGNER COURSE OVERVIEW GRID SYSTEM
+   ========================================================================== */
+.overview-split-layout-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 32px;
+  align-items: start;
+  width: 100%;
+  max-width: 1280px;
+  box-sizing: border-box;
+}
+
+/* Base Card Blueprint Containers */
+.overview-informational-card {
+  background-color: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+}
+
+.overview-informational-card h3 {
+  margin: 0 0 24px 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+
+/* Left Summary Descriptive Column Blocks */
+.overview-body-narrative {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #475569;
+  margin: 0 0 36px 0;
+}
+
+.overview-metrics-vertical-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.overview-metric-strip-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.overview-metric-icon-housing {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: #2563eb;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.overview-metric-icon-housing svg {
+  width: 22px;
+  height: 22px;
+}
+
+.overview-metric-meta-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-metric-meta-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.overview-metric-meta-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Right Core Learning Curriculum Column Blocks */
+.overview-curriculum-checklist-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.overview-checklist-node-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.overview-checklist-bullet-node {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.overview-checklist-bullet-node svg {
+  width: 10px;
+  height: 10px;
+  stroke: #10b981;
+  stroke-width: 4;
+}
+
+.overview-checklist-bullet-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  line-height: 1.4;
+}
+
+/* Loading & Error Screens Layout Clearances */
+.course-viewport-centered-fallback {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #f8fafc;
+}
+
+.course-viewport-centered-fallback h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.course-viewport-centered-fallback .error-headline-text {
+  color: #ef4444;
 }

@@ -5,6 +5,7 @@ import Home from '../pages/Home';
 import Course from '../pages/Course';
 import Schedule from '../pages/Schedule';
 import Placeholder from '../pages/Placeholder';
+import ProgressView from './ProgressView.jsx';
 
 export default function DashBoard() {
   const profile = dashboardService.getUserProfile();
@@ -42,7 +43,7 @@ export default function DashBoard() {
       case 'schedule':
         return <Schedule />;
       case 'progress':
-        return <Placeholder title="Progress" description="Track your learning milestones and statistics." />;
+        return <ProgressView/>;
       case 'notes':
         return <Placeholder title="Notes" description="Manage your course notes and key highlights." />;
       case 'profile':

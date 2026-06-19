@@ -1,48 +1,51 @@
 // dashboardService.js
-// Service providing mock data for the Home page dashboard.
+// Service providing home dashboard telemetry data (Enrolled courses, timeline charts, and cards).
+import axios from 'axios';
+
+// 💡 SET TO 'false' WHEN BACKEND IS DOWN TO USE LOCAL MOCK DATA
+const IS_BACKEND_RUNNING = false; 
+
+const API_BASE_URL = 'http://localhost:5000/api';
+
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' }
+});
+
+const sleep = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 const dashboardService = {
-  getUserProfile() {
+  async getUserProfile() {
     return {
       name: "Name",
       email: "h.tech@email.com"
     };
   },
 
-  getOverviewStats() {
-    return [
-      {
-        id: "current-course",
-        title: "Core Java",
-        label: "Course Enrolled",
-        icon: "book-open", // represented by a book-like SVG/icon
-        color: "blue"
-      },
-      {
-        id: "modules-completed",
-        title: "5",
-        label: "Modules Completed",
-        icon: "check-circle",
-        color: "green"
-      },
-      {
-        id: "overall-completion",
-        title: "10.3%",
-        label: "Over All Completion",
-        icon: "trending-up",
-        color: "blue"
-      },
-      {
-        id: "courses-enrolled",
-        title: "0",
-        label: "Course Enrolled",
-        icon: "alert-circle",
-        color: "red"
-      }
-    ];
+  async getProfileData() {
+    return {
+      name: "Name",
+      email: "hexaware.tech@email.com",
+      sidebarEmail: "h.tech@email.com"
+    };
   },
 
-  getKeepGoingData() {
+  async getOverviewStats() {
+    if (!IS_BACKEND_RUNNING) {
+      await sleep();
+      return [
+        { id: "current-course", title: "Core Java", label: "Course Enrolled", icon: "book-open", color: "blue" },
+        { id: "modules-completed", title: "5", label: "Modules Completed", icon: "check-circle", color: "green" },
+        { id: "overall-completion", title: "10.3%", label: "Over All Completion", icon: "trending-up", color: "blue" },
+        { id: "courses-enrolled", title: "0", label: "Course Enrolled", icon: "alert-circle", color: "red" }
+      ];
+    }
+    // Live Endpoint substitution mapping
+    const response = await apiClient.get('/dashboard/stats');
+    return response.data;
+  },
+
+  async getKeepGoingData() {
     return {
       badge: "Keep Going!",
       title: "61 Modules Almost Done",
@@ -51,107 +54,52 @@ const dashboardService = {
     };
   },
 
-  getTimeSpentData() {
+  async getTimeSpentData() {
     return {
       badge: "Time spent",
       categories: [
-        {
-          id: "learning-contents",
-          title: "5 Day",
-          hours: "05:00 hrs",
-          label: "Learning Contents",
-          color: "#3563e9" // Primary Blue
-        },
-        {
-          id: "assessment",
-          title: "",
-          hours: "02:03:30 hrs",
-          label: "Assessment",
-          color: "#5c6f84" // Charcoal Gray
-        },
-        {
-          id: "practice",
-          title: "",
-          hours: "00:00:40 hrs",
-          label: "Practice",
-          color: "#0dcd94" // Accent Green
-        }
+        { id: "learning-contents", title: "1 Day", hours: "05:00 hrs", label: "Learning Contents", color: "#3563e9" },
+        { id: "assessment", title: "", hours: "00:03:20 hrs", label: "Assessment", color: "#5c6f84" },
+        { id: "practice", title: "", hours: "00:01:40 hrs", label: "Practice", color: "#0dcd94" }
       ]
     };
   },
 
-  getCourseProgressData() {
-    return {
-      title: "Core Java",
-      subtitle: "Day 7 of 12",
-      percent: 48,
-      startDate: "13 May, 26",
-      endDate: "13 May, 26",
-      chartPoints: [
-        { day: 0, percentage: 0 },
-        { day: 4, percentage: 35 },
-        { day: 8, percentage: 40 },
-        { day: 12, percentage: 48 }
-      ]
-    };
+  // GET /courses/users/{user_id}
+  async getCoursesByUser(userId) {
+    if (!IS_BACKEND_RUNNING) {
+      await sleep();
+      return [
+        { id: 101, title: "Core Java", description: "Java Core Architecture Plan", duration_days: 12 }
+      ];
+    }
+    const response = await apiClient.get(`/courses/users/${userId}`);
+    return response.data;
   },
 
-  getProgressOverview() {
-    return {
-      percentage: 58,
-      completedModules: 48,
-      totalModules: 48,
-      completedAssessments: 2,
-      totalAssessments: 3,
-      insights: [
-        {
-          title: "You learn best at 9:00 AM",
-          description: "Based on your completion patterns"
-        },
-        {
-          title: "20% ahead of average pace",
-          description: "You're making excellent progress!"
-        },
-        {
-          title: "Estimated completion: May 22, 2026",
-          description: "2 days earlier than scheduled"
-        }
-      ],
-      assessments: [
-        {
-          id: "java-basics",
-          title: "Java Basics Quiz",
-          status: "Passed",
-          score: 85,
-          total: 100,
-          details: "Score: 85/100"
-        },
-        {
-          id: "oop-mid",
-          title: "OOP Mid-Assessment",
-          status: "Passed",
-          score: 78,
-          total: 100,
-          details: "Score: 78/100"
-        },
-        {
-          id: "data-structures",
-          title: "Data Structures Quiz",
-          status: "Upcoming",
-          score: null,
-          total: null,
-          details: "Not yet taken"
-        }
-      ]
-    };
+  // GET /progress/course/{course_id}/user/{user_id}
+  async getCourseProgress(courseId, userId) {
+    if (!IS_BACKEND_RUNNING) {
+      await sleep();
+      return { percentage: 48, completed_units: 5, total_units: 46 };
+    }
+    const response = await apiClient.get(`/progress/course/${courseId}/user/${userId}`);
+    return response.data;
   },
 
-  getProfileData() {
-    return {
-      name: "Name",
-      email: "hexaware.tech@email.com",
-      sidebarEmail: "h.tech@email.com"
-    };
+  // GET /progress/users/{user_id}/timeline
+  async getProgressTimeline(userId) {
+    if (!IS_BACKEND_RUNNING) {
+      await sleep();
+      return [
+        { day: 1, completed_units: 2 },
+        { day: 4, completed_units: 5 },
+        { day: 8, completed_units: 8 },
+        { day: 12, completed_units: 11 }
+      ];
+    }
+    const response = await apiClient.get(`/progress/users/${userId}/timeline`);
+    return response.data;
   }
 };
 
