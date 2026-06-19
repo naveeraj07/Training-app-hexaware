@@ -1,0 +1,196 @@
+/* Container and Layout Setup */
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Soft abstract gradient background to mimic the blurry decorative circles */
+  background: radial-gradient(circle at 15% 15%, #e0e7ff 0%, transparent 25%),
+              radial-gradient(circle at 95% 20%, #e0e7ff 0%, transparent 20%),
+              radial-gradient(circle at 10% 90%, #f1f5f9 0%, transparent 30%),
+              #f8fafc;
+}
+
+/* Central Content Wrapper */
+.login-content {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 40px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Left Brand Column */
+.brand-section {
+  flex: 1;
+  max-width: 450px;
+}
+
+.brand-logo {
+  font-size: 5.3rem;
+  font-weight: 700;
+  color: #155DFC; /* Vibrant branding blue */
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+
+.brand-tagline {
+  font-size: 1.1rem;
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* Right Card Column */
+.card-section {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.login-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 460px;
+  padding: 50px 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 
+              0 8px 10px -6px rgba(0, 0, 0, 0.02);
+}
+
+.card-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 24px;
+}
+
+.card-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2b5aec;
+  margin-bottom: 6px;
+}
+
+.card-subheading {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 32px;
+}
+
+/* Form Styles */
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.input-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.mail-icon {
+  position: absolute;
+  left: 16px;
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.input-field-wrapper input {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  border: none;
+  background-color: #f1f5f9;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+.input-field-wrapper input::placeholder {
+  color: #94a3b8;
+}
+
+.input-field-wrapper input:focus {
+  outline: 2px solid #2b5aec;
+  background-color: #fff;
+}
+
+/* Action Button */
+.submit-button {
+  background-color: #3b66f5;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 40px;
+}
+
+.submit-button:hover {
+  background-color: #254edb;
+}
+
+/* Footer Legalese inside card */
+.terms-text {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.terms-text a {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.terms-text a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Breakdown for Smaller Devices */
+@media (max-width: 768px) {
+  .login-content {
+    flex-direction: column;
+    gap: 40px;
+    padding: 40px 20px;
+  }
+  
+  .brand-section {
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .brand-logo {
+    font-size: 2.75rem;
+  }
+  
+  .card-section {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .login-card {
+    padding: 35px 25px;
+  }
+}
