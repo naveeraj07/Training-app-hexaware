@@ -8,7 +8,12 @@ import Placeholder from '../pages/Placeholder';
 import ProgressView from './ProgressView.jsx';
 
 export default function DashBoard() {
-  const profile = dashboardService.getUserProfile();
+  // 1. Convert profile to a state object to handle asynchronous API loading
+  const [profile, setProfile] = useState({ name: "Loading...", email: "" });
+  
+  // 🌟 Dynamic Course ID State tracking user's enrollment assignment
+  const [courseId, setCourseId] = useState(null);
+  const [isCourseLoading, setIsCourseLoading] = useState(true);
   
   // Hash routing state
   const [currentRoute, setCurrentRoute] = useState(() => {
@@ -16,6 +21,52 @@ export default function DashBoard() {
     return hash || 'home';
   });
 
+  // 2. Dynamically retrieve the logged-in user ID from localStorage
+  const userId = Number(localStorage.getItem('logged_in_user_id')) || 1;
+
+  // 3. Fetch the user profile and assigned course asynchronously when the dashboard mounts
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await dashboardService.getUserProfile(userId);
+        if (data) {
+          setProfile(data);
+        }
+      } catch (error) {
+        console.error("Failed to load user profile in sidebar:", error);
+        
+        // Smart Fallback
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        setProfile({ 
+          name: storedUser.employee_id || "Student", 
+          email: storedUser.email || "student@example.com" 
+        });
+      }
+    };
+
+    // 🌟 New: Fetch the course ID assigned to this user from the API endpoint
+    const fetchUserAssignedCourse = async () => {
+      try {
+        setIsCourseLoading(true);
+        const response = await fetch(`/courses/users/${userId}`);
+        const data = await response.json();
+        
+        // Safely extract the course_id or fall back to 1 if empty
+        const assignedId = data?.enrolled_courses?.[0]?.course_id || data?.course_id || 1;
+        setCourseId(assignedId);
+      } catch (error) {
+        console.error("Failed to load assigned user course:", error);
+        setCourseId(1); // Production Fallback to default course
+      } finally {
+        setIsCourseLoading(false);
+      }
+    };
+
+    fetchProfile();
+    fetchUserAssignedCourse();
+  }, [userId]);
+
+  // 4. Handle hash-based navigation changes
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.substring(1);
@@ -24,7 +75,6 @@ export default function DashBoard() {
 
     window.addEventListener('hashchange', handleHashChange);
     
-    // Set default hash to #home if none is present
     if (!window.location.hash) {
       window.location.hash = 'home';
     }
@@ -39,7 +89,11 @@ export default function DashBoard() {
       case 'home':
         return <Home />;
       case 'course':
-        return <Course />;
+        // 🌟 Pass the live backend assigned courseId down to the Course subpage
+        if (isCourseLoading) {
+          return <div style={{ padding: '40px', textAlign: 'center' }}><h3>Verifying active enrollment...</h3></div>;
+        }
+        return <Course courseId={courseId} />;
       case 'schedule':
         return <Schedule />;
       case 'progress':
@@ -105,6 +159,12 @@ export default function DashBoard() {
             href="#logout" 
             className={`nav-item logout-btn ${currentRoute === 'logout' ? 'active' : ''}`}
             data-page="logout"
+            onClick={() => {
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('user');
+              localStorage.removeItem('logged_in_user_id');
+              window.location.href = '/'; 
+            }}
           >
             <Icon name="log-out" className="nav-icon" />
             <span>Logout</span>

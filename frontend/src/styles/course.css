@@ -4,14 +4,18 @@
 .course-main-viewport {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  /* 💎 FIX: Changed from 100vh to 100% so it perfectly fits inside .main-content */
+  height: 100%; 
   width: 100%;
   box-sizing: border-box;
   background-color: #f8fafc;
+  overflow: hidden;
 }
 
 .course-workspace-scroll-area {
   flex-grow: 1;
+  /* 💎 FIX: Allows the flexbox child container to compress and activate scrollbars */
+  min-height: 0; 
   overflow-y: auto;
   padding: 32px 40px;
   display: flex;

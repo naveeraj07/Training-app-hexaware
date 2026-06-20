@@ -13,13 +13,11 @@ export default function ProgressView() {
         setIsLoading(true);
         setError(null);
 
-        // Fetch data asynchronously from our dashboard service
         let data = null;
         if (typeof dashboardService.getProgressOverview === 'function') {
           data = await dashboardService.getProgressOverview();
         }
 
-        // Safe client fallback defaults matching your mock specifications if backend returns empty rows
         if (!data) {
           data = {
             percentage: 58,
@@ -54,16 +52,16 @@ export default function ProgressView() {
 
   if (isLoading) {
     return (
-      <div className="page-view progress-container-view structural-fallback-centered">
-        <h3>Loading Progress Profile...</h3>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh', width: '100%', fontFamily: 'sans-serif' }}>
+        <h3 style={{ color: '#64748b', fontWeight: '500' }}>Loading Progress Profile...</h3>
       </div>
     );
   }
 
   if (error || !progressData) {
     return (
-      <div className="page-view progress-container-view structural-fallback-centered">
-        <h3 className="error-headline-text">{error || "Data Unavailable"}</h3>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh', width: '100%', fontFamily: 'sans-serif' }}>
+        <h3 style={{ color: '#ef4444', fontWeight: '500' }}>{error || "Data Unavailable"}</h3>
       </div>
     );
   }
@@ -71,114 +69,234 @@ export default function ProgressView() {
   const isCertificateUnlocked = progressData.percentage >= 100;
 
   return (
-    <div className="page-view progress-container-view">
-      {/* Blue Banner Header */}
-      <div className="progress-banner-header">
-        <div className="progress-banner-left">
-          <div className="progress-banner-icon-bg">
-            <Icon name="activity" className="progress-banner-icon" />
+    <div 
+      className="page-view progress-container-view"
+      style={{ 
+        boxSizing: 'border-box',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '28px',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        paddingBottom: '40px' /* Safe buffer space at the bottom of the scroll list */
+      }}
+    >
+      {/* 1. Header Blue Banner Card */}
+      <div 
+        className="progress-banner-header"
+        style={{
+          backgroundColor: '#2563eb',
+          borderRadius: '20px',
+          padding: '32px 40px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 4px 20px rgba(37, 99, 235, 0.15)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', padding: '14px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="activity" style={{ color: '#ffffff', width: '28px', height: '28px' }} />
           </div>
-          <div className="progress-banner-text">
-            <h2 className="progress-banner-title">Your Progress</h2>
-            <span className="progress-banner-subtitle">Track your progress</span>
+          <div>
+            <h2 style={{ color: '#ffffff', margin: '0 0 2px 0', fontSize: '28px', fontWeight: '700', letterSpacing: '-0.3px' }}>Your Progress</h2>
+            <span style={{ color: 'rgba(255, 255, 255, 0.75)', textTransform: 'uppercase', fontSize: '12px', fontWeight: '600', letterSpacing: '0.8px' }}>Track your progress</span>
           </div>
         </div>
-        <button className="progress-new-note-btn" onClick={() => alert('Feature coming soon!')}>
-          <Icon name="plus" className="progress-new-note-icon" />
+        <button 
+          className="progress-new-note-btn" 
+          onClick={() => alert('Feature coming soon!')}
+          style={{
+            backgroundColor: '#ffffff',
+            border: 'none',
+            borderRadius: '12px',
+            padding: '12px 20px',
+            color: '#2563eb',
+            fontWeight: '600',
+            fontSize: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}
+        >
+          <Icon name="plus" style={{ width: '16px', height: '16px', strokeWidth: '2.5' }} />
           <span>New Note</span>
         </button>
       </div>
 
-      {/* Grid Row (Certificate and Insights) */}
-      <div className="progress-grid-mid">
-        
-        {/* Certificate Card */}
-        <div className="progress-card progress-cert-card">
-          <div className="progress-card-header">
-            <div className="progress-cert-icon-circle">
-              <Icon name="file-text" className="progress-cert-icon" />
-            </div>
-            <div className="progress-card-header-text">
-              <h3>Course Certificate</h3>
-              <span>Complete all modules to unlock</span>
-            </div>
-          </div>
-
-          <div className="progress-cert-body">
-            <div className="progress-req-box">
-              <div className="progress-req-header">
-                <span className="progress-req-title">Requirements Progress</span>
-                <span className="progress-req-pct">{progressData.percentage}%</span>
+      {/* 2. Middle Grid Block */}
+      <div 
+        className="progress-grid-mid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '28px',
+          alignItems: 'stretch'
+        }}
+      >
+        {/* Certificate Progress Card */}
+        <div 
+          className="progress-card progress-cert-card"
+          style={{ 
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            padding: '28px',
+            border: '1px solid #edf2f7',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '24px'
+          }}
+        >
+          <div>
+            <div className="progress-card-header" style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '4px' }}>
+              <div style={{ backgroundColor: '#2563eb', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="file-text" style={{ color: '#ffffff', width: '20px', height: '20px' }} />
               </div>
-              <div className="progress-req-track">
-                <div className="progress-req-bar" style={{ width: `${progressData.percentage}%` }}></div>
+              <div className="progress-card-header-text">
+                <h3 style={{ margin: '0 0 2px 0', fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>Course Certificate</h3>
+                <span style={{ color: '#64748b', fontSize: '13px' }}>Complete all modules to unlock</span>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <span style={{ color: '#475569', fontWeight: '600', fontSize: '13px' }}>Requirements Progress</span>
+                <span style={{ color: '#1e293b', fontWeight: '700', fontSize: '14px' }}>{progressData.percentage}%</span>
               </div>
               
-              <ul className="progress-req-list">
-                <li className="progress-req-item completed">
-                  <span className="progress-check-circle">
-                    <Icon name="check" className="progress-check-icon" />
+              <div style={{ width: '100%', backgroundColor: '#e2e8f0', borderRadius: '9999px', height: '8px', overflow: 'hidden', marginBottom: '20px' }}>
+                <div style={{ width: `${progressData.percentage}%`, height: '100%', backgroundColor: '#2563eb', borderRadius: '9999px' }}></div>
+              </div>
+              
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#334155', fontWeight: '500' }}>
+                  <span style={{ backgroundColor: '#dcfce7', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon name="check" style={{ color: '#16a34a', width: '12px', height: '12px', strokeWidth: '3' }} />
                   </span>
-                  <span>Complete all {progressData.completedModules} modules</span>
+                  <span>Complete all {progressData.totalModules} modules</span>
                 </li>
-                <li className={`progress-req-item ${progressData.completedAssessments === progressData.totalAssessments ? 'completed' : 'pending'}`}>
-                  {progressData.completedAssessments === progressData.totalAssessments ? (
-                    <span className="progress-check-circle">
-                      <Icon name="check" className="progress-check-icon" />
-                    </span>
-                  ) : (
-                    <span className="progress-empty-circle"></span>
-                  )}
+                <li style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#334155', fontWeight: '500' }}>
+                  <span style={{ border: '2px solid #cbd5e1', borderRadius: '50%', width: '18px', height: '18px', display: 'block', boxSizing: 'border-box', flexShrink: 0, backgroundColor: '#ffffff' }}></span>
                   <span>Pass all assessments ({progressData.completedAssessments}/{progressData.totalAssessments} completed)</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          <button className="progress-cert-btn" disabled={!isCertificateUnlocked}>
-            <Icon name={isCertificateUnlocked ? "award" : "lock"} className="progress-lock-icon" />
+          <button 
+            disabled={!isCertificateUnlocked} 
+            style={{ 
+              width: '100%',
+              padding: '14px',
+              borderRadius: '12px',
+              border: 'none',
+              backgroundColor: isCertificateUnlocked ? '#2563eb' : '#e2e8f0',
+              color: isCertificateUnlocked ? '#ffffff' : '#94a3b8',
+              fontWeight: '600',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: isCertificateUnlocked ? 'pointer' : 'not-allowed'
+            }}
+          >
+            <Icon name={isCertificateUnlocked ? "award" : "lock"} style={{ width: '16px', height: '16px' }} />
             <span>{isCertificateUnlocked ? "Download Certificate" : "Certificate Locked"}</span>
           </button>
         </div>
 
         {/* Learning Insights Card */}
-        <div className="progress-card progress-insights-card">
-          <div className="progress-insights-header">
-            <Icon name="info" className="progress-info-icon" />
-            <h3>Learning Insights</h3>
+        <div 
+          className="progress-card progress-insights-card" 
+          style={{ 
+            backgroundColor: '#eff6ff', 
+            borderRadius: '20px', 
+            padding: '28px',
+            border: '1px solid #e0f2fe',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Icon name="info" style={{ color: '#2563eb', width: '20px', height: '20px' }} />
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>Learning Insights</h3>
           </div>
           
-          <div className="progress-insights-body">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flexGrow: 1, justifyContent: 'space-between' }}>
             {progressData.insights && progressData.insights.map((insight, idx) => (
-              <div key={idx} className="progress-insight-item">
-                <span className="insight-item-title">{insight.title}</span>
-                <span className="insight-item-desc">{insight.description}</span>
+              <div 
+                key={idx} 
+                style={{ 
+                  backgroundColor: '#ffffff', 
+                  padding: '16px 20px', 
+                  borderRadius: '14px',
+                  border: '1px solid #f1f5f9',
+                  flexGrow: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center'
+                }}
+              >
+                <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '14px', marginBottom: '2px' }}>{insight.title}</div>
+                <div style={{ color: '#64748b', fontSize: '12px', fontWeight: '500' }}>{insight.description}</div>
               </div>
             ))}
           </div>
         </div>
-
       </div>
 
-      {/* Assessment Results Card */}
-      <div className="progress-card progress-assessment-card">
-        <h3 className="progress-assessment-title">Assessment Results</h3>
+      {/* 3. Bottom Table Assessment Card */}
+      <div 
+        className="progress-card progress-assessment-card" 
+        style={{ 
+          backgroundColor: '#ffffff', 
+          borderRadius: '20px', 
+          padding: '28px',
+          border: '1px solid #edf2f7'
+        }}
+      >
+        <h3 style={{ marginTop: 0, marginBottom: '24px', fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>Assessment Results</h3>
         
-        <div className="progress-assessment-list">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {progressData.assessments && progressData.assessments.map(item => (
-            <div key={item.id} className="progress-assessment-item-row">
-              <div className="progress-assessment-row-header">
-                <div className="progress-assessment-info">
-                  <h4>{item.title}</h4>
-                  <span>{item.details}</span>
+            <div 
+              key={item.id} 
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '12px',
+                padding: '20px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '16px',
+                border: '1px solid #f1f5f9'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 2px 0', fontSize: '15px', fontWeight: '600', color: '#1e293b' }}>{item.title}</h4>
+                  <span style={{ color: '#64748b', fontSize: '12px', fontWeight: '500' }}>{item.details}</span>
                 </div>
-                <span className={`progress-badge badge-${item.status.toLowerCase()}`}>
+                <span 
+                  style={{ 
+                    backgroundColor: item.status === 'Passed' ? '#dcfce7' : '#f1f5f9', 
+                    color: item.status === 'Passed' ? '#16a34a' : '#64748b', 
+                    padding: '6px 14px', 
+                    borderRadius: '20px', 
+                    fontSize: '12px', 
+                    fontWeight: '700' 
+                  }}
+                >
                   {item.status}
                 </span>
               </div>
               {item.status === 'Passed' && item.score !== null && (
-                <div className="progress-assessment-track">
-                  <div className="progress-assessment-bar" style={{ width: `${item.score}%` }}></div>
+                <div style={{ width: '100%', backgroundColor: '#e2e8f0', borderRadius: '9999px', height: '6px', overflow: 'hidden' }}>
+                  <div style={{ width: `${item.score}%`, height: '100%', backgroundColor: '#2563eb', borderRadius: '9999px' }}></div>
                 </div>
               )}
             </div>

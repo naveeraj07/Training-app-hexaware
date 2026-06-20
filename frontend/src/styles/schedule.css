@@ -20,7 +20,7 @@
   align-items: flex-start;
   position: relative;
   overflow: visible; /* Need overflow visible to let stats card overlap cleanly */
-  height: 180px;
+  height: 220px;
   box-shadow: 0 10px 30px rgba(53, 99, 233, 0.15);
 }
 
@@ -86,7 +86,7 @@
   position: absolute;
   left: 40px;
   right: 40px;
-  bottom: -40px;
+  bottom: 10px;
   z-index: 10;
   display: flex;
   justify-content: flex-start;

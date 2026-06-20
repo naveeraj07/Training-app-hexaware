@@ -50,6 +50,7 @@ export default function LoginScreen() {
       }
 
       localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('logged_in_user_id', user.id);
     }
     alert('Login Successful!');
     navigate('/dashboard');

@@ -15,91 +15,153 @@ const apiClient = axios.create({
 const sleep = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 const dashboardService = {
-  async getUserProfile() {
-    return {
-      name: "Name",
-      email: "h.tech@email.com"
-    };
-  },
-
-  async getProfileData() {
-    return {
-      name: "Name",
-      email: "hexaware.tech@email.com",
-      sidebarEmail: "h.tech@email.com"
-    };
-  },
-
-  async getOverviewStats() {
+  
+  /**
+   * CENTRAL DASHBOARD API: GET /dashboard/{user_id}
+   * Fetches all aggregated metrics: courses, progress, timeline, and learning hours.
+   */
+  async getDashboardData(userId) {
     if (!IS_BACKEND_RUNNING) {
       await sleep();
-      return [
-        { id: "current-course", title: "Core Java", label: "Course Enrolled", icon: "book-open", color: "blue" },
-        { id: "modules-completed", title: "5", label: "Modules Completed", icon: "check-circle", color: "green" },
-        { id: "overall-completion", title: "10.3%", label: "Over All Completion", icon: "trending-up", color: "blue" },
-        { id: "courses-enrolled", title: "0", label: "Course Enrolled", icon: "alert-circle", color: "red" }
-      ];
+      // Safe fallback data exactly matching the structure from Dashboard_Module_Full_Documentation.pdf
+      return {
+        employee_id: "EMP001",
+        email: "leadjoseph@example.com",
+        courses_enrolled: 1,
+        current_course: {
+          course_id: 1,
+          course_name: "C# Digital Foundation",
+          current_day: 1,
+          day_progress_percentage: 33.33,
+          duration_days: 16,
+          start_date: "2026-06-09",
+          end_date: "2026-06-24",
+          total_modules: 46,
+          completed_modules: 2,
+          remaining_modules: 44,
+          progress_percentage: 4.35,
+          learning_minutes_completed: 360,
+          assessment_time_hours: 10,
+          assignment_time_hours: 5,
+          day_wise_progress: [
+            { day: 1, progress_percentage: 20 },
+            { day: 2, progress_percentage: 10 },
+            { day: 3, progress_percentage: 0 },
+            { day: 4, progress_percentage: 33.33 }
+          ]
+        }
+      };
     }
-    // Live Endpoint substitution mapping
-    const response = await apiClient.get('/dashboard/stats');
+    
+    // Live Endpoint connection
+    const response = await apiClient.get(`/dashboard/${userId}`);
     return response.data;
   },
 
-  async getKeepGoingData() {
+  // ---------------------------------------------------------------------------
+  // UI MAPPING HELPER FUNCTIONS 
+  // These map the central API response (above) to your specific React components
+  // ---------------------------------------------------------------------------
+
+  async getUserProfile(userId) {
+    const data = await this.getDashboardData(userId);
+    return {
+      name: data.employee_id, // Or use a name field if your backend adds one
+      email: data.email
+    };
+  },
+
+  async getOverviewStats(userId) {
+    const data = await this.getDashboardData(userId);
+    const course = data.current_course;
+    
+    return [
+      { id: "current-course", title: course.course_name, label: "Course Enrolled", icon: "book-open", color: "blue" },
+      { id: "modules-completed", title: course.completed_modules.toString(), label: "Modules Completed", icon: "check-circle", color: "green" },
+      { id: "overall-completion", title: `${course.progress_percentage}%`, label: "Over All Completion", icon: "trending-up", color: "blue" },
+      { id: "courses-enrolled", title: data.courses_enrolled.toString(), label: "Courses Enrolled", icon: "alert-circle", color: "red" }
+    ];
+  },
+
+  async getTimeSpentData(userId) {
+    const data = await this.getDashboardData(userId);
+    const course = data.current_course;
+    
+    // Converting minutes to HH:MM format for UI
+    const learningHours = Math.floor(course.learning_minutes_completed / 60);
+    const learningMins = course.learning_minutes_completed % 60;
+    
+    return {
+      badge: "Time spent",
+      categories: [
+        { 
+          id: "learning-contents", 
+          title: `Day ${course.current_day}`, 
+          hours: `${learningHours.toString().padStart(2, '0')}:${learningMins.toString().padStart(2, '0')} hrs`, 
+          label: "Learning Contents", 
+          color: "#3563e9" 
+        },
+        { 
+          id: "assessment", 
+          title: "", 
+          hours: `${course.assessment_time_hours.toString().padStart(2, '0')}:00 hrs`, 
+          label: "Assessment", 
+          color: "#5c6f84" 
+        },
+        { 
+          id: "practice", 
+          title: "", 
+          hours: `${course.assignment_time_hours.toString().padStart(2, '0')}:00 hrs`, 
+          label: "Practice", 
+          color: "#0dcd94" 
+        }
+      ]
+    };
+  },
+
+  async getKeepGoingData(userId) {
+    const data = await this.getDashboardData(userId);
+    const remaining = data.current_course.remaining_modules;
+    
     return {
       badge: "Keep Going!",
-      title: "61 Modules Almost Done",
+      title: `${remaining} Modules Almost Done`,
       description: "You're making amazing progress! Finish your courses and unlock new achievements.",
       buttonText: "Continue Learning"
     };
   },
 
-  async getTimeSpentData() {
+  async getCourseProgressData(userId) {
+    const data = await this.getDashboardData(userId);
+    const course = data.current_course;
+    
     return {
-      badge: "Time spent",
-      categories: [
-        { id: "learning-contents", title: "1 Day", hours: "05:00 hrs", label: "Learning Contents", color: "#3563e9" },
-        { id: "assessment", title: "", hours: "00:03:20 hrs", label: "Assessment", color: "#5c6f84" },
-        { id: "practice", title: "", hours: "00:01:40 hrs", label: "Practice", color: "#0dcd94" }
-      ]
+      title: course.course_name,
+      subtitle: `Day ${course.current_day} of ${course.duration_days}`,
+      percent: course.progress_percentage,
+      startDate: course.start_date,
+      endDate: course.end_date,
+      chartPoints: course.day_wise_progress
     };
   },
 
-  // GET /courses/users/{user_id}
-  async getCoursesByUser(userId) {
-    if (!IS_BACKEND_RUNNING) {
-      await sleep();
-      return [
-        { id: 101, title: "Core Java", description: "Java Core Architecture Plan", duration_days: 12 }
-      ];
+  // ---------------------------------------------------------------------------
+  // 🆕 NEW FUNCTION ADDED BELOW FOR THE PROFILE VIEW
+  // ---------------------------------------------------------------------------
+  async getProfileViewData(userId) {
+    try {
+      const data = await this.getDashboardData(userId);
+      return {
+        name: data.employee_id || "Alex Mercer",
+        email: data.email || "alex.mercer@devstudent.io"
+      };
+    } catch (error) {
+      // Fallback structural safety layout
+      return {
+        name: "Alex Mercer",
+        email: "alex.mercer@devstudent.io"
+      };
     }
-    const response = await apiClient.get(`/courses/users/${userId}`);
-    return response.data;
-  },
-
-  // GET /progress/course/{course_id}/user/{user_id}
-  async getCourseProgress(courseId, userId) {
-    if (!IS_BACKEND_RUNNING) {
-      await sleep();
-      return { percentage: 48, completed_units: 5, total_units: 46 };
-    }
-    const response = await apiClient.get(`/progress/course/${courseId}/user/${userId}`);
-    return response.data;
-  },
-
-  // GET /progress/users/{user_id}/timeline
-  async getProgressTimeline(userId) {
-    if (!IS_BACKEND_RUNNING) {
-      await sleep();
-      return [
-        { day: 1, completed_units: 2 },
-        { day: 4, completed_units: 5 },
-        { day: 8, completed_units: 8 },
-        { day: 12, completed_units: 11 }
-      ];
-    }
-    const response = await apiClient.get(`/progress/users/${userId}/timeline`);
-    return response.data;
   }
 };
 
