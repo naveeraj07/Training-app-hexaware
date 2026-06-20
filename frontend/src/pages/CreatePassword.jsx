@@ -46,7 +46,7 @@ export default function CreatePasswordScreen() {
 
     try {
       // Update this URL endpoint to match your actual FastAPI/Node backend route
-      await axios.post('http://localhost:8000/auth/confirm-activation', {
+      await axios.post('http://localhost:8000/auth/activate', {
         token: token,
         password: password
       });
