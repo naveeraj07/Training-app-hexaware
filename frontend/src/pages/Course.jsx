@@ -365,16 +365,101 @@ export default function Course({ courseId }) {
               );
             })
           ) : (
+
             <div className="overview-split-layout-grid">
+
               <div className="overview-informational-card">
+
                 <h3>Course Overview</h3>
-                <p className="overview-body-narrative">{rawCourseData?.description || "Master the fundamentals of Java programming."}</p>
+
+                <p className="overview-body-narrative">
+
+                  {rawCourseData?.description || "Master the fundamentals of Java programming with this comprehensive course. Learn everything from basic syntax to advanced concepts like data structures, algorithms, and object-oriented programming."}
+
+                </p>
+
+                <div className="overview-metrics-vertical-stack">
+
+                  <div className="overview-metric-strip-row">
+
+                    <div className="overview-metric-icon-housing"><Icon name="clock" /></div>
+
+                    <div className="overview-metric-meta-details">
+
+                      <span className="overview-metric-meta-label">Duration</span>
+
+                      <span className="overview-metric-meta-value">{course.totalDays} Days • 48 Hours</span>
+
+                    </div>
+
+                  </div>
+
+                  <div className="overview-metric-strip-row">
+
+                    <div className="overview-metric-icon-housing"><Icon name="file-text" /></div>
+
+                    <div className="overview-metric-meta-details">
+
+                      <span className="overview-metric-meta-label">Total Lessons</span>
+
+                      <span className="overview-metric-meta-value">48 Video Lessons</span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
               </div>
+
+
+
+              <div className="overview-informational-card">
+
+                <h3>What You'll Learn</h3>
+
+                <div className="overview-curriculum-checklist-deck">
+
+                  {[
+
+                    "Core Java syntax and fundamentals",
+
+                    "Object-oriented programming concepts",
+
+                    "Data structures and algorithms",
+
+                    "Exception handling and debugging",
+
+                    "File I/O and serialization",
+
+                    "Multithreading and concurrency"
+
+                  ].map((curriculumValue, index) => (
+
+                    <div key={index} className="overview-checklist-node-item">
+
+                      <div className="overview-checklist-bullet-node"><Icon name="check" /></div>
+
+                      <span className="overview-checklist-bullet-text">{curriculumValue}</span>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
+              </div>
+
             </div>
+
           )}
+
         </div>
+
       </div>
+
     );
+       
   }
 
   return (
