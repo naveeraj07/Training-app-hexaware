@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     MAIL_PASSWORD: str
     MAIL_FROM: str
 
+    ASSIGNMENT_UPLOAD_DIR: str = "uploads/assignments"
+    SUBMISSION_UPLOAD_DIR: str = "uploads/submissions"
+    
     class Config:
         env_file = ".env"
 

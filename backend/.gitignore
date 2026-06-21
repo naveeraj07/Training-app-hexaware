@@ -19,5 +19,15 @@ alembic/versions/__pycache__/
 .coverage
 htmlcov/
 
+.env.*
+
+*.db
+*.sqlite3
+
+*.log
+
+uploads/
+tmp/
+
 .DS_Store
 Thumbs.db
