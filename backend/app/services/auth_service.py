@@ -33,7 +33,9 @@ async def create_user(
 
     user = User(
         employee_id=user_data.employee_id,
+        name=user_data.name,
         email=user_data.email,
+        course_id=user_data.course_id,
         is_active=False
     )
 

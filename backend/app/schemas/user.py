@@ -3,7 +3,9 @@ from pydantic import BaseModel, EmailStr
 
 class UserCreate(BaseModel):
     employee_id: str
+    name: str
     email: EmailStr
+    course_id: int
 
 
 class UserResponse(BaseModel):
