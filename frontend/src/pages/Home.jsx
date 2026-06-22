@@ -14,7 +14,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const userId = 1; // Current active user session ID
+  // 🌟 DYNAMIC SESSION CONFIGURATION: Replaced the static ID with localStorage extraction
+  const userId = Number(localStorage.getItem('logged_in_user_id')) || 1;
 
   useEffect(() => {
     const fetchDashboardTelemetry = async () => {
