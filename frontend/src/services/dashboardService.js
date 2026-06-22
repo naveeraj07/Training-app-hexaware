@@ -3,9 +3,9 @@
 import axios from 'axios';
 
 // 💡 SET TO 'false' WHEN BACKEND IS DOWN TO USE LOCAL MOCK DATA
-const IS_BACKEND_RUNNING = false; 
+const IS_BACKEND_RUNNING = true; 
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:8000';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
