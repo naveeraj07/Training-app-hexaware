@@ -6,6 +6,7 @@ import Course from '../pages/Course';
 import Schedule from '../pages/Schedule';
 import Placeholder from '../pages/Placeholder';
 import ProgressView from './ProgressView.jsx';
+import StudyNotes from './StudyNotes.jsx';
 
 export default function DashBoard() {
   // 1. Convert profile to a state object to handle asynchronous API loading
@@ -99,7 +100,7 @@ export default function DashBoard() {
       case 'progress':
         return <ProgressView/>;
       case 'notes':
-        return <Placeholder title="Notes" description="Manage your course notes and key highlights." />;
+        return <StudyNotes/>;
       case 'profile':
         return <Placeholder title="Profile" description="View and update your student profile information." />;
       case 'logout':

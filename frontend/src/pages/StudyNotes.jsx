@@ -1,5 +1,4 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import './StudyNotes.css';
 
 const CATEGORIES = ['Frontend', 'Backend', 'Design', 'DevOps', 'General'];
 const COURSES = [
