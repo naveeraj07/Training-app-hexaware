@@ -1,3 +1,9 @@
+/* src/index.css */
+/* Import the original stylesheets in their proper cascade order to preserve look & feel */
+@import "./styles/main.css";
+@import "./styles/home.css";
+@import "./styles/course.css";
+@import "./styles/schedule.css";
 @import "tailwindcss";
 /* Add your custom background animations here */
 @keyframes floatSlow {
