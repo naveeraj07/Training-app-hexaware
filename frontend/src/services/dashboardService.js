@@ -31,7 +31,7 @@ const dashboardService = {
         current_course: {
           course_id: 1,
           course_name: "Java",
-          current_day: 1,
+          current_day: 2,
           day_progress_percentage: 33.33,
           duration_days: 16,
           start_date: "2026-06-09",
