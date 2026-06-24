@@ -11,6 +11,28 @@
   100% { transform: translate(0px, 0px) scale(1); }
 }
 
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* LAYOUT WRAPPERS */
 .login-wrapper {
   position: relative;
@@ -58,12 +80,14 @@
 /* BRANDING & HEADER */
 .brand-title {
   margin-bottom: 24px;
+  animation: slideUp 0.5s ease-out;
 }
 
 .card-header {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  animation: slideUp 0.5s ease-out 0.1s both;
 }
 
 /* FORM CARD */
@@ -79,16 +103,19 @@
   display: flex;
   flex-direction: column;
   gap: 40px;
+  animation: scaleIn 0.4s ease-out;
 }
 
 .error-notification {
-  background-color: #FEE2E2;
-  color: #DC2626;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
   padding: 14px 18px;
   border-radius: 14px;
   font-size: 13px;
   font-weight: 500;
   margin-top: -12px;
+  border-left: 4px solid #dc2626;
+  animation: slideUp 0.3s ease-out;
 }
 
 .login-form {
@@ -102,13 +129,19 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  animation: slideUp 0.5s ease-out both;
 }
+
+.input-group:nth-child(1) { animation-delay: 0.1s; }
+.input-group:nth-child(2) { animation-delay: 0.2s; }
+.input-group:nth-child(3) { animation-delay: 0.3s; }
 
 .input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .input-icon {
@@ -118,6 +151,18 @@
   align-items: center;
   color: #9ca3af;
   pointer-events: none;
+  transition: color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.email-input,
+.password-input {
+  width: 100%;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  font-size: 14px;
+  color: #1f2937;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .email-input {
@@ -128,9 +173,23 @@
   padding: 16px 52px 16px 52px;
 }
 
+.email-input:focus,
+.password-input:focus {
+  outline: none;
+  border-color: #3563e9;
+  box-shadow: 0 0 0 3px rgba(53, 99, 233, 0.1);
+  background: white;
+}
+
+.email-input:focus ~ .input-icon,
+.password-input:focus ~ .input-icon {
+  color: #3563e9;
+}
+
 .email-input:disabled,
 .password-input:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .toggle-visibility-btn {
@@ -139,6 +198,14 @@
   background: none;
   border: none;
   color: #9ca3af;
+  cursor: pointer;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 4px;
+}
+
+.toggle-visibility-btn:hover {
+  color: #3563e9;
+  transform: scale(1.1);
 }
 
 .toggle-visibility-btn:not(:disabled) {
@@ -155,28 +222,39 @@
   justify-content: space-between;
   align-items: center;
   margin-top: -8px;
+  animation: slideUp 0.5s ease-out 0.35s both;
 }
 
 .remember-label {
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.remember-label:not(.loading) {
-  cursor: pointer;
+.remember-label:hover {
+  color: #3563e9;
 }
 
 .remember-label.loading {
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* BUTTONS */
 .submit-btn {
-  padding: 16px;
+  padding: 14px 24px;
   border-radius: 12px;
   border: none;
   margin-top: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  background: linear-gradient(135deg, #3563e9 0%, #254dd0 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(53, 99, 233, 0.3);
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideUp 0.5s ease-out 0.4s both;
 }
 
 .submit-btn:not(:disabled) {
@@ -184,7 +262,18 @@
   opacity: 1;
 }
 
+.submit-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(53, 99, 233, 0.4);
+  background: linear-gradient(135deg, #254dd0 0%, #1d4ed8 100%);
+}
+
+.submit-btn:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(53, 99, 233, 0.3);
+}
+
 .submit-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.6;
 }

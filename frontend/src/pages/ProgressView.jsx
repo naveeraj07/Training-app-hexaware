@@ -85,13 +85,14 @@ export default function ProgressView() {
       <div 
         className="progress-banner-header"
         style={{
-          backgroundColor: '#2563eb',
+          background: 'linear-gradient(135deg, #3563e9 0%, #254dd0 100%)',
           borderRadius: '20px',
           padding: '32px 40px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          boxShadow: '0 4px 20px rgba(37, 99, 235, 0.15)'
+          boxShadow: '0 12px 40px rgba(53, 99, 233, 0.25)',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -143,11 +144,14 @@ export default function ProgressView() {
             backgroundColor: '#ffffff',
             borderRadius: '20px',
             padding: '28px',
-            border: '1px solid #edf2f7',
+            border: '1px solid #e2e8f0',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            gap: '24px'
+            gap: '24px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+            transition: 'all 300ms ease-out',
+            hoverShadow: '0 12px 32px rgba(0,0,0,0.08)'
           }}
         >
           <div>

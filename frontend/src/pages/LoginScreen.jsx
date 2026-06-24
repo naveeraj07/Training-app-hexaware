@@ -69,7 +69,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="login-wrapper min-h-screen w-full bg-[#F4F7FC] font-sans">
+    <div className="login-wrapper min-h-screen w-full bg-gradient-to-br from-[#F4F7FC] via-[#F8FAFC] to-[#EFF6FF] font-sans" style={{ position: 'relative', overflow: 'hidden' }}>
       
       {/* --- BACKGROUND BLUR LAYER --- */}
       <div className="blur-layer-1"></div>
@@ -78,7 +78,7 @@ export default function LoginScreen() {
       <div className="blur-layer-4"></div>
 
       {/* --- MAIN CONTENT GRID WRAPPER --- */}
-      <div className="content-grid w-full max-w-6xl mx-auto">
+      <div className="content-grid w-full max-w-6xl mx-auto" style={{ position: 'relative', zIndex: 10 }}>
         
         {/* LEFT SIDE: Branding Statement */}
         <div className="flex flex-col items-center text-center md:items-start md:text-left select-none">
@@ -92,7 +92,7 @@ export default function LoginScreen() {
 
         {/* RIGHT SIDE: White Login Form Card */}
         <div className="form-card-wrapper w-full">
-          <div className="form-card w-full bg-white shadow-[0_20px_50px_rgba(0,0,0,0.03)]">
+          <div className="form-card w-full bg-white shadow-[0_25px_70px_rgba(0,0,0,0.06)] backdrop-blur-xl border border-white/80 hover:shadow-[0_30px_80px_rgba(0,0,0,0.08)] transition-all duration-300">
             
             {/* Header Text */}
             <div className="card-header">
@@ -134,7 +134,7 @@ export default function LoginScreen() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isLoading}
-                    className="email-input w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
+                    className="email-input w-full bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9] border border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-[#3563e9] focus:ring-2 focus:ring-[#3563e9]/10 transition-all duration-200"
                     required
                   />
                 </div>
@@ -160,7 +160,7 @@ export default function LoginScreen() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
-                    className="password-input w-full bg-[#F1F5F9] border border-transparent rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-blue-400 transition-all"
+                    className="password-input w-full bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9] border border-[#E2E8F0] rounded-xl text-base text-gray-900 placeholder-gray-400 outline-none focus:bg-white focus:border-[#3563e9] focus:ring-2 focus:ring-[#3563e9]/10 transition-all duration-200"
                     required
                   />
 
