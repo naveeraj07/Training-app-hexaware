@@ -64,10 +64,16 @@ const courseService = {
       return {
         course_id: String(courseId),
         user_id: String(userId),
-        progress_percentage: 15.0,
-        // 🛠️ ALIGNED FIX: Changed [101] to ["101"] to enforce strict string equality in mock data
-        completed_learning_units: ["101","102"], 
-        completed_videos: ["10201", "10202"] 
+        progress_percentage: 100.0,
+        // Mark every lesson in the mock course as complete so assignments unlock in demo mode.
+        completed_learning_units: ["101", "102", "103", "104", "105"],
+        completed_videos: [
+          "10101", "10102", "10103", "10104",
+          "10201", "10202", "10203", "10204",
+          "10301", "10302", "10303", "10304",
+          "10401", "10402", "10403", "10404",
+          "10501", "10502", "10503", "10504"
+        ]
       };
     }
     const response = await apiClient.get(`/progress/course/${courseId}/user/${userId}`);
