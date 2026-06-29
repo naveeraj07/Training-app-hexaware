@@ -48,7 +48,11 @@ export default function DashBoard() {
     const fetchUserAssignedCourse = async () => {
       try {
         setIsCourseLoading(true);
-        const response = await fetch(`/courses/users/${userId}`);
+        const API_BASE = "http://localhost:8000";
+
+const response = await fetch(
+    `${API_BASE}/courses/users/${userId}`
+);
         const data = await response.json();
         
         // Safely extract the course_id or fall back to 1 if empty

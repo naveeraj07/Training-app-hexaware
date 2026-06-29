@@ -25,35 +25,48 @@ export default function Course({ courseId }) {
   const [subView, setSubView] = useState('outline'); 
   const [activeHorizontalTab, setActiveHorizontalTab] = useState('Videos');
   const [selectedLesson, setSelectedLesson] = useState(null);
-  
+
   // Video Player & Playlist States
   const [unitVideos, setUnitVideos] = useState([]);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [completedVideos, setCompletedVideos] = useState(new Set()); 
-  
+
   // Progress states
   const [completedLessons, setCompletedLessons] = useState(new Set());
   const [progressPercentage, setProgressPercentage] = useState(0);
+
+  // Converts Google Drive share/view links into playable direct links for <video>
+  const normalizeVideoUrl = (url) => {
+    if (!url) return '';
+
+    // Match Google Drive file links:
+    // https://drive.google.com/file/d/<FILE_ID>/view?usp=drive_link
+    const match = url.match(/\/file\/d\/([^/]+)\//);
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    }
+
+    return url;
+  };
 
   // Fetch Structure and Progress from Backend
   const syncCourseProgressAndDashboard = useCallback(async (showLoading = false) => {
     try {
       if (showLoading) setIsLoading(true);
-      
+
       const dashData = await dashboardService.getDashboardData(userId);
       const activeDay = dashData?.current_course?.current_day || 1;
       setCurrentUnlockedDay(activeDay);
-      
+
       if (showLoading) {
         setExpandedDay(activeDay);
       }
-      
-      // 🌟 Refactored: Replaced CURRENT_COURSE_ID with the dynamic activeCourseId prop
+
       const [contentData, progressData] = await Promise.all([
         courseService.getCourseContent(activeCourseId),
         courseService.getCourseProgress(activeCourseId, userId)
       ]);
-      
+
       setRawCourseData(contentData?.course || contentData);
 
       const mappedCourse = {
@@ -81,20 +94,23 @@ export default function Course({ courseId }) {
         setCompletedLessons(new Set([progressData.completed_units]));
       } else if (Array.isArray(progressData?.completed_learning_units)) { 
         setCompletedLessons(new Set(progressData.completed_learning_units));
+      } else {
+        setCompletedLessons(new Set());
       }
 
-      // Keep completed videos globally accurate across initial re-syncs
       if (Array.isArray(progressData?.completed_videos)) {
         setCompletedVideos(new Set(progressData.completed_videos.map(id => String(id))));
+      } else {
+        setCompletedVideos(new Set());
       }
-      
+
     } catch (err) {
       console.error("Failed to fetch course data:", err);
       setError("Failed to load course details. Please try again later.");
     } finally {
       if (showLoading) setIsLoading(false);
     }
-  }, [userId, activeCourseId]); // 🌟 Added activeCourseId as dependency
+  }, [userId, activeCourseId]);
 
   useEffect(() => {
     syncCourseProgressAndDashboard(true);
@@ -110,7 +126,11 @@ export default function Course({ courseId }) {
   const triggerLessonCompletion = async (lessonId) => {
     if (completedLessons.has(lessonId)) return;
 
-    setCompletedLessons(prev => new Set(prev).add(lessonId));
+    setCompletedLessons(prev => {
+      const next = new Set(prev);
+      next.add(lessonId);
+      return next;
+    });
 
     try {
       await courseService.markUnitComplete(userId, lessonId);
@@ -134,8 +154,8 @@ export default function Course({ courseId }) {
     setCurrentVideoUrl('');
 
     try {
-      // 🌟 Refactored: Updated to fetch user progress using activeCourseId
       const progressData = await courseService.getCourseProgress(activeCourseId, userId);
+      console.log("Progress Data:", progressData);
       if (progressData?.completed_videos) {
         setCompletedVideos(new Set(progressData.completed_videos.map(id => String(id))));
       } else {
@@ -143,10 +163,15 @@ export default function Course({ courseId }) {
       }
 
       const videos = await courseService.getUnitVideos(lesson.id);
-      setUnitVideos(videos);
+      console.log(videos);
+      setUnitVideos(videos || []);
+      console.log("Video URL:", videos[0].video_url || videos[0].url);
+console.log("Normalized URL:", normalizeVideoUrl(videos[0].video_url || videos[0].url));
 
       if (videos && videos.length > 0) {
-        setCurrentVideoUrl(videos[0].video_url || videos[0].url);
+        setCurrentVideoUrl(
+          normalizeVideoUrl(videos[0].video_url || videos[0].url)
+        );
       }
     } catch (err) {
       console.error("Failed to load videos for the learning unit:", err);
@@ -155,20 +180,26 @@ export default function Course({ courseId }) {
 
   // Unified click/select video mechanism 
   const handleSelectVideo = (targetUrl) => {
-    if (currentVideoUrl === targetUrl) {
+    const normalizedUrl = normalizeVideoUrl(targetUrl);
+
+    if (currentVideoUrl === normalizedUrl) {
       const videoEl = document.querySelector('.dashboard-active-video-element');
       if (videoEl) {
         videoEl.currentTime = 0;
         videoEl.play().catch(err => console.log("Playback forced error:", err));
       }
     } else {
-      setCurrentVideoUrl(targetUrl);
+      setCurrentVideoUrl(normalizedUrl);
     }
   };
 
-  // Video End Handler
+  // Video End Handler / manual complete handler
   const handleVideoComplete = async () => {
-    const currentIndex = unitVideos.findIndex(v => (v.video_url || v.url) === currentVideoUrl);
+    const currentIndex = unitVideos.findIndex(v => {
+      const videoUrl = normalizeVideoUrl(v.video_url || v.url);
+      return videoUrl === currentVideoUrl;
+    });
+
     if (currentIndex === -1) return;
 
     const currentVid = unitVideos[currentIndex];
@@ -179,20 +210,36 @@ export default function Course({ courseId }) {
       next.add(videoId);
       return next;
     });
+    console.log("Completed video:", videoId);
+    console.log("Completed videos state will contain:", videoId);
+try {
+  if (typeof courseService.markVideoComplete === 'function') {
+    await courseService.markVideoComplete(userId, videoId);
+  }
 
-    try {
-      if (typeof courseService.markVideoComplete === 'function') {
-        await courseService.markVideoComplete(userId, videoId);
-      }
-    } catch (err) {
-      console.error("Failed to sync video completion to backend:", err);
-    }
+  // Refresh progress from backend so next video unlocks
+  await syncCourseProgressAndDashboard(false);
+
+} catch (err) {
+  console.error("Failed to sync video completion to backend:", err);
+}
 
     const nextIndex = currentIndex + 1;
-    if (nextIndex < unitVideos.length) {
-      const nextVid = unitVideos[nextIndex];
-      setCurrentVideoUrl(nextVid.video_url || nextVid.url);
-    } else {
+
+if (nextIndex < unitVideos.length) {
+    const nextVid = unitVideos[nextIndex];
+
+    setCompletedVideos(prev => {
+        const next = new Set(prev);
+        next.add(videoId);
+        return next;
+    });
+
+    setCurrentVideoUrl(
+        normalizeVideoUrl(nextVid.video_url || nextVid.url)
+    );
+}
+    else {
       if (selectedLesson) {
         triggerLessonCompletion(selectedLesson.id);
       }
@@ -282,20 +329,17 @@ export default function Course({ courseId }) {
                   {isExpanded && !isLocked && (
                     <div className="module-lessons-deck" style={{ padding: '0 20px 20px 20px' }}>
                       {(() => {
-                        // 🌟 Track sequential progression chain inside this day's section
                         let isLessonChainBroken = false;
 
                         return module.lessons.map((lesson, lessonIdx) => {
                           const isCompleted = completedLessons.has(lesson.id);
                           let isLessonLocked = false;
 
-                          // Sequential Gate checking if this isn't the first item
                           if (lessonIdx > 0) {
                             if (isLessonChainBroken) {
                               isLessonLocked = true;
                             } else {
                               const prevLesson = module.lessons[lessonIdx - 1];
-                              // Break sequence chain if preceding element hasn't been done
                               if (!completedLessons.has(prevLesson.id)) {
                                 isLessonLocked = true;
                                 isLessonChainBroken = true;
@@ -365,101 +409,55 @@ export default function Course({ courseId }) {
               );
             })
           ) : (
-
             <div className="overview-split-layout-grid">
-
               <div className="overview-informational-card">
-
                 <h3>Course Overview</h3>
-
                 <p className="overview-body-narrative">
-
                   {rawCourseData?.description || "Master the fundamentals of Java programming with this comprehensive course. Learn everything from basic syntax to advanced concepts like data structures, algorithms, and object-oriented programming."}
-
                 </p>
 
                 <div className="overview-metrics-vertical-stack">
-
                   <div className="overview-metric-strip-row">
-
                     <div className="overview-metric-icon-housing"><Icon name="clock" /></div>
-
                     <div className="overview-metric-meta-details">
-
                       <span className="overview-metric-meta-label">Duration</span>
-
                       <span className="overview-metric-meta-value">{course.totalDays} Days • 48 Hours</span>
-
                     </div>
-
                   </div>
 
                   <div className="overview-metric-strip-row">
-
                     <div className="overview-metric-icon-housing"><Icon name="file-text" /></div>
-
                     <div className="overview-metric-meta-details">
-
                       <span className="overview-metric-meta-label">Total Lessons</span>
-
                       <span className="overview-metric-meta-value">48 Video Lessons</span>
-
                     </div>
-
                   </div>
-
                 </div>
-
               </div>
-
-
 
               <div className="overview-informational-card">
-
                 <h3>What You'll Learn</h3>
-
                 <div className="overview-curriculum-checklist-deck">
-
                   {[
-
                     "Core Java syntax and fundamentals",
-
                     "Object-oriented programming concepts",
-
                     "Data structures and algorithms",
-
                     "Exception handling and debugging",
-
                     "File I/O and serialization",
-
                     "Multithreading and concurrency"
-
                   ].map((curriculumValue, index) => (
-
                     <div key={index} className="overview-checklist-node-item">
-
                       <div className="overview-checklist-bullet-node"><Icon name="check" /></div>
-
                       <span className="overview-checklist-bullet-text">{curriculumValue}</span>
-
                     </div>
-
                   ))}
-
                 </div>
-
               </div>
-
             </div>
-
           )}
-
         </div>
-
       </div>
-
     );
-       
   }
 
   return (
@@ -493,6 +491,23 @@ export default function Course({ courseId }) {
                 <p>No video streaming paths found.</p>
               </div>
             )}
+          </div>
+
+          <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              onClick={handleVideoComplete}
+              style={{
+                background: '#2563eb',
+                color: '#fff',
+                border: 'none',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Mark Video as Completed
+            </button>
           </div>
         </div>
 
@@ -532,24 +547,20 @@ function VideoPlaylist({ videos, currentVideoUrl, onPlayVideo, completedVideos }
       {videos.map((video, idx) => {
         const targetUrl = video.video_url || video.url;
         const videoId = String(video.id ?? video.video_id ?? idx);
-        
-        let isLocked = false;
 
-        if (idx > 0) {
-          if (isChainBroken) {
-            isLocked = true;
-          } else {
-            const prevVideo = videos[idx - 1];
-            const prevVideoId = String(prevVideo.id ?? prevVideo.video_id ?? (idx - 1));
-            
-            if (!completedVideos.has(prevVideoId)) {
-              isLocked = true;
-              isChainBroken = true; 
-            }
-          }
-        }
+        const prevVideo = idx === 0 ? null : videos[idx - 1];
 
-        const isActive = !isLocked && currentVideoUrl === targetUrl;
+const prevVideoId = prevVideo
+    ? String(prevVideo.id ?? prevVideo.video_id ?? (idx - 1))
+    : null;
+
+let isLocked = false;
+
+if (idx > 0) {
+    isLocked = !completedVideos.has(prevVideoId);
+}
+
+        const isActive = !isLocked && currentVideoUrl === (targetUrl.includes('drive.google.com/file/d/') ? targetUrl.replace(/https:\/\/drive\.google\.com\/file\/d\/([^/]+)\/view.*$/, 'https://drive.google.com/uc?export=download&id=$1') : targetUrl);
 
         return (
           <div 
@@ -586,7 +597,7 @@ function NotesSection({ learningUnitId }) {
 
   useEffect(() => {
     if (!learningUnitId) return;
-    
+
     let isMounted = true;
     const fetchNotes = async () => {
       try {
