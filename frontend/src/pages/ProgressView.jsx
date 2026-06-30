@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import dashboardService from '../services/progressService';
+import progressService from '../services/progressService';
 import Icon from '../components/Icon';
 
 export default function ProgressView() {
@@ -14,8 +14,8 @@ export default function ProgressView() {
         setError(null);
 
         let data = null;
-        if (typeof dashboardService.getProgressOverview === 'function') {
-          data = await dashboardService.getProgressOverview();
+        if (typeof progressService.getProgressOverview === 'function') {
+          data = await progressService.getProgressOverview();
         }
 
         if (!data) {

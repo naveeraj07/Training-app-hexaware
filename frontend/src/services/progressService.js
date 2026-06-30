@@ -25,7 +25,7 @@ const progressService = {
       return {
         percentage: 58,
         completedModules: 48,
-        totalModules: 48,
+        totalModules: 83,
         completedAssessments: 2,
         totalAssessments: 3,
         insights: [
