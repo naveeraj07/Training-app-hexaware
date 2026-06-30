@@ -242,10 +242,10 @@ export default function Course({ courseId }) {
                   className={`module-timeline-group ${isLocked ? 'locked-module' : 'unlocked-module'}`}
                   style={{ 
                     opacity: isLocked ? 0.6 : 1, 
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '12px',
                     marginBottom: '16px',
-                    background: isLocked ? '#f8fafc' : '#ffffff'
+                    background: isLocked ? 'var(--bg-main)' : 'var(--bg-sidebar)'
                   }}
                 >
                   <div 
@@ -257,25 +257,25 @@ export default function Course({ courseId }) {
                       justifyContent: 'space-between', 
                       alignItems: 'center',
                       padding: '20px',
-                      borderBottom: isExpanded ? '1px solid #e2e8f0' : 'none'
+                      borderBottom: isExpanded ? '1px solid var(--border-color)' : 'none'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div className="module-numeric-badge" style={{ background: isLocked ? '#cbd5e1' : '#3b82f6', color: '#fff' }}>
+                      <div className="module-numeric-badge" style={{ background: isLocked ? 'var(--border-color)' : 'var(--primary-blue)', color: '#fff' }}>
                         {module.id}
                       </div>
                       <div className="module-heading-details">
-                        <h3 className="module-primary-title" style={{ color: isLocked ? '#64748b' : '#0f172a', margin: 0 }}>
+                        <h3 className="module-primary-title" style={{ color: isLocked ? 'var(--text-medium)' : 'var(--text-dark)', margin: 0 }}>
                           {module.title}
                         </h3>
-                        <span className="module-duration-subtitle" style={{ color: '#64748b', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                        <span className="module-duration-subtitle" style={{ color: 'var(--text-medium)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
                           <Icon name="clock" style={{ width: '14px' }} />
                           <span>{module.dayLabel} • {module.lessons.length} Modules</span>
                         </span>
                       </div>
                     </div>
                     <div>
-                      {isLocked ? <Icon name="lock" style={{ color: '#94a3b8' }} /> : <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} style={{ color: '#3b82f6' }} />}
+                      {isLocked ? <Icon name="lock" style={{ color: 'var(--text-light)' }} /> : <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} style={{ color: 'var(--primary-blue)' }} />}
                     </div>
                   </div>
 
@@ -309,13 +309,13 @@ export default function Course({ courseId }) {
                               className={`lesson-row-interactive-card ${isLessonLocked ? 'locked-lesson' : ''}`} 
                               style={{ 
                                 marginTop: '16px', 
-                                background: isCompleted ? '#f0fdf4' : isLessonLocked ? '#f8fafc' : '#fff',
+                                background: isCompleted ? 'var(--accent-green-light)' : isLessonLocked ? 'var(--bg-main)' : 'var(--bg-sidebar)',
                                 opacity: isLessonLocked ? 0.55 : 1,
                                 cursor: isLessonLocked ? 'not-allowed' : 'pointer'
                               }}
                             >
                               <div className="lesson-row-meta-left">
-                                <h4 className="lesson-row-title" style={{ color: isLessonLocked ? '#94a3b8' : '#0f172a' }}>
+                                <h4 className="lesson-row-title" style={{ color: isLessonLocked ? 'var(--text-light)' : 'var(--text-dark)' }}>
                                   {lesson.title}
                                 </h4>
                                 <span className="lesson-row-duration">{lesson.duration}</span>
@@ -351,7 +351,7 @@ export default function Course({ courseId }) {
                                   {isCompleted ? (
                                     <Icon name="check" />
                                   ) : isLessonLocked ? (
-                                    <Icon name="lock" style={{ width: '12px', color: '#cbd5e1' }} />
+                                    <Icon name="lock" style={{ width: '12px', color: 'var(--text-light)' }} />
                                   ) : null}
                                 </div>
                               </div>
@@ -522,7 +522,7 @@ export default function Course({ courseId }) {
 
 function VideoPlaylist({ videos, currentVideoUrl, onPlayVideo, completedVideos }) {
   if (!videos || videos.length === 0) {
-    return <div style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}><p>No lecture parts attached.</p></div>;
+    return <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-medium)' }}><p>No lecture parts attached.</p></div>;
   }
 
   let isChainBroken = false;
@@ -561,16 +561,16 @@ function VideoPlaylist({ videos, currentVideoUrl, onPlayVideo, completedVideos }
             style={{ 
               cursor: isLocked ? 'not-allowed' : 'pointer',
               opacity: isLocked ? 0.5 : 1,
-              background: isLocked ? '#f8fafc' : ''
+              background: isLocked ? 'var(--bg-main)' : ''
             }}
           >
             <div className="playlist-card-icon-frame"><Icon name={isLocked ? "lock" : "play"} /></div>
             <div className="playlist-card-text-block">
-              <h4 className="playlist-card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4 className="playlist-card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dark)' }}>
                 {video.title || `Part ${idx + 1}`}
                 {completedVideos.has(videoId) && <Icon name="check" style={{ width: '14px', color: '#16a34a' }} />}
               </h4>
-              <p className="playlist-card-meta">{isLocked ? 'Complete previous video to unlock' : (video.duration || 'Lecture Video File')}</p>
+              <p className="playlist-card-meta" style={{ color: 'var(--text-medium)' }}>{isLocked ? 'Complete previous video to unlock' : (video.duration || 'Lecture Video File')}</p>
             </div>
           </div>
         );
@@ -608,22 +608,22 @@ function NotesSection({ learningUnitId }) {
     return () => { isMounted = false; };
   }, [learningUnitId]);
 
-  if (loading) return <div style={{ padding: '24px', textAlign: 'center' }}><p>Fetching lesson notes...</p></div>;
-  if (error) return <div style={{ padding: '24px', textAlign: 'center', color: 'red' }}><p>{error}</p></div>;
+  if (loading) return <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-medium)' }}><p>Fetching lesson notes...</p></div>;
+  if (error) return <div style={{ padding: '24px', textAlign: 'center', color: 'var(--accent-red)' }}><p>{error}</p></div>;
 
   return (
-    <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#1e293b' }}>
+    <div style={{ padding: '24px', backgroundColor: 'var(--bg-sidebar)', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--text-dark)' }}>
         <Icon name="file-text" style={{ width: '20px', height: '20px' }} />
         <h3 style={{ margin: 0, fontSize: '18px' }}>Lesson Notes & Summaries</h3>
       </div>
       {notes ? (
         <div 
-          style={{ color: '#334155', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}
+          style={{ color: 'var(--text-medium)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}
           dangerouslySetInnerHTML={{ __html: notes }}
         />
       ) : (
-        <p style={{ color: '#64748b', fontStyle: 'italic', margin: 0 }}>No theory text summaries provided for this lesson yet.</p>
+        <p style={{ color: 'var(--text-light)', fontStyle: 'italic', margin: 0 }}>No theory text summaries provided for this lesson yet.</p>
       )}
     </div>
   );
@@ -658,28 +658,28 @@ function QnASection({ learningUnitId }) {
     return () => { isMounted = false; };
   }, [learningUnitId]);
 
-  if (loading) return <div style={{ padding: '24px', textAlign: 'center' }}><p>Loading discussions...</p></div>;
-  if (error) return <div style={{ padding: '24px', textAlign: 'center', color: 'red' }}><p>{error}</p></div>;
+  if (loading) return <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-medium)' }}><p>Loading discussions...</p></div>;
+  if (error) return <div style={{ padding: '24px', textAlign: 'center', color: 'var(--accent-red)' }}><p>{error}</p></div>;
 
   return (
-    <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', color: '#1e293b' }}>
+    <div style={{ padding: '24px', backgroundColor: 'var(--bg-sidebar)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', color: 'var(--text-dark)' }}>
         <Icon name="message-circle" style={{ width: '20px', height: '20px' }} />
         <h3 style={{ margin: 0, fontSize: '18px' }}>Student Discussion & Forum Boards</h3>
       </div>
 
       {qaList.length === 0 ? (
-        <div style={{ textAlign: 'center', color: '#64748b', padding: '16px' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-light)', padding: '16px' }}>
           <p>No questions have been submitted for this module unit yet. Be the first to start the thread!</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {qaList.map((item, idx) => (
-            <div key={item.id || item.qa_id || idx} style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
-              <h4 style={{ margin: '0 0 4px 0', color: '#0f172a', fontSize: '15px' }}>Q: {item.question}</h4>
-              <p style={{ margin: 0, color: '#475569', fontSize: '14px', paddingLeft: '20px' }}>
-                <span style={{ fontWeight: '600', color: '#2563eb' }}>A: </span>
-                {item.answer || <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Pending answer from instructors...</span>}
+            <div key={item.id || item.qa_id || idx} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+              <h4 style={{ margin: '0 0 4px 0', color: 'var(--text-dark)', fontSize: '15px' }}>Q: {item.question}</h4>
+              <p style={{ margin: 0, color: 'var(--text-medium)', fontSize: '14px', paddingLeft: '20px' }}>
+                <span style={{ fontWeight: '600', color: 'var(--primary-blue)' }}>A: </span>
+                {item.answer || <span style={{ color: 'var(--text-light)', fontStyle: 'italic' }}>Pending answer from instructors...</span>}
               </p>
             </div>
           ))}
@@ -691,13 +691,13 @@ function QnASection({ learningUnitId }) {
 
 function AssignmentSection() {
   return (
-    <div style={{ padding: '32px', textAlign: 'center', color: '#64748b', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+    <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-medium)', backgroundColor: 'var(--bg-main)', borderRadius: '8px', border: '1px dashed var(--border-color)' }}>
       <Icon name="file-text" style={{ width: '32px', height: '32px', marginBottom: '16px', opacity: 0.5 }} />
       <h3>Assignments & Code Labs</h3>
-      <p style={{ maxWidth: '400px', margin: '0 auto 12px auto', fontSize: '14px' }}>
+      <p style={{ maxWidth: '400px', margin: '0 auto 12px auto', fontSize: '14px', color: 'var(--text-medium)' }}>
         Coding sandbox workspaces and testing suite verifications are currently being developed by our backend engineering team.
       </p>
-      <span style={{ fontSize: '11px', textTransform: 'uppercase', padding: '4px 8px', backgroundColor: '#e2e8f0', borderRadius: '4px', color: '#475569', fontWeight: 'bold' }}>
+      <span style={{ fontSize: '11px', textTransform: 'uppercase', padding: '4px 8px', backgroundColor: 'var(--border-color)', borderRadius: '4px', color: 'var(--text-medium)', fontWeight: 'bold' }}>
         Coming Soon
       </span>
     </div>

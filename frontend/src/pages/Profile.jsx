@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import Icon from '../components/Icon';
-import dashboardService from '../services/dashboardService.js';
+import { useTheme } from '../context/ThemeContext.jsx';
+// Make sure to import your components correctly
+// import Icon from '../components/Icon'; 
+// import dashboardService from '../services/dashboardService.js';
 
 export default function Profile() {
   const [expandedSection, setExpandedSection] = useState(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  
+  const { isDarkMode, toggleTheme } = useTheme();
+  const darkModeEnabled = isDarkMode;
+
   const [profileData, setProfileData] = useState({
     name: "Loading...",
     email: "Loading..."
@@ -18,13 +23,14 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const data = await dashboardService.getProfileViewData(userId);
+        // const data = await dashboardService.getProfileViewData(userId);
+        // Using mock data here for demonstration
+        const data = { name: "John Doe", email: "john@example.com" };
         if (data) {
           setProfileData(data);
         }
       } catch (error) {
         console.error("Error loading profile data:", error);
-        // Fallback to localStorage if backend fails
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         setProfileData({
           name: user.employee_id || user.name || 'Student',
@@ -35,6 +41,8 @@ export default function Profile() {
 
     fetchProfileData();
   }, [userId]);
+
+
 
   const userName = profileData.name;
   const userEmail = profileData.email;
@@ -49,8 +57,20 @@ export default function Profile() {
     window.location.href = '/';
   };
 
+  // --- THEME CONFIGURATION ---
+  // We define dynamic colors based on the darkModeEnabled state
+  const theme = {
+    bgApp: darkModeEnabled ? '#0f172a' : '#f8fafc',
+    bgCard: darkModeEnabled ? '#1e293b' : 'white',
+    bgExpanded: darkModeEnabled ? '#0f172a' : '#f8fafc',
+    bgHover: darkModeEnabled ? '#334155' : '#f8fafc',
+    textMain: darkModeEnabled ? '#f8fafc' : '#1e293b',
+    textSub: darkModeEnabled ? '#94a3b8' : '#64748b',
+    borderColor: darkModeEnabled ? '#334155' : '#e2e8f0',
+  };
+
   return (
-    <div style={{ padding: '0', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ padding: '0', minHeight: '100vh', background: theme.bgApp, transition: 'background 0.3s ease' }}>
       {/* Header Section */}
       <div style={{
         background: 'linear-gradient(135deg, #3563e9 0%, #254dd0 100%)',
@@ -75,12 +95,13 @@ export default function Profile() {
         
         {/* Profile Card */}
         <div style={{
-          background: 'white',
+          background: theme.bgCard,
           borderRadius: '16px',
           padding: '30px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
           marginBottom: '30px',
-          border: '1px solid #e2e8f0'
+          border: `1px solid ${theme.borderColor}`,
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <div style={{
@@ -102,14 +123,16 @@ export default function Profile() {
                 margin: '0 0 5px 0',
                 fontSize: '18px',
                 fontWeight: '700',
-                color: '#1e293b'
+                color: theme.textMain,
+                transition: 'color 0.3s ease'
               }}>
                 {userName}
               </h2>
               <p style={{
                 margin: '0',
                 fontSize: '14px',
-                color: '#64748b'
+                color: theme.textSub,
+                transition: 'color 0.3s ease'
               }}>
                 {userEmail}
               </p>
@@ -122,21 +145,22 @@ export default function Profile() {
           <h3 style={{
             fontSize: '16px',
             fontWeight: '700',
-            color: '#1e293b',
+            color: theme.textMain,
             marginBottom: '15px',
-            letterSpacing: '0.5px'
+            letterSpacing: '0.5px',
+            transition: 'color 0.3s ease'
           }}>
             Account Settings
           </h3>
 
           {/* Personal Details */}
           <div style={{
-            background: 'white',
+            background: theme.bgCard,
             borderRadius: '12px',
             marginBottom: '12px',
-            border: '1px solid #e2e8f0',
+            border: `1px solid ${theme.borderColor}`,
             overflow: 'hidden',
-            transition: 'all 250ms cubic-bezier(0.16, 1, 0.3, 1)'
+            transition: 'all 0.3s ease'
           }}>
             <button
               onClick={() => toggleSection('personal')}
@@ -151,7 +175,7 @@ export default function Profile() {
                 cursor: 'pointer',
                 transition: 'background 150ms ease-out'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+              onMouseEnter={(e) => e.currentTarget.style.background = theme.bgHover}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -159,7 +183,7 @@ export default function Profile() {
                   width: '32px',
                   height: '32px',
                   borderRadius: '8px',
-                  background: '#eef2ff',
+                  background: darkModeEnabled ? '#1e3a8a' : '#eef2ff',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -171,13 +195,13 @@ export default function Profile() {
                 <span style={{
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: '#1e293b'
+                  color: theme.textMain
                 }}>
                   Personal Details
                 </span>
               </div>
               <span style={{
-                color: '#94a3b8',
+                color: theme.textSub,
                 fontSize: '18px',
                 transform: expandedSection === 'personal' ? 'rotate(90deg)' : 'rotate(0deg)',
                 transition: 'transform 300ms ease-out'
@@ -189,12 +213,12 @@ export default function Profile() {
             {expandedSection === 'personal' && (
               <div style={{
                 padding: '16px 20px',
-                borderTop: '1px solid #e2e8f0',
-                background: '#f8fafc'
+                borderTop: `1px solid ${theme.borderColor}`,
+                background: theme.bgExpanded
               }}>
                 <p style={{
                   fontSize: '13px',
-                  color: '#64748b',
+                  color: theme.textSub,
                   margin: '0',
                   lineHeight: '1.6'
                 }}>
@@ -206,12 +230,12 @@ export default function Profile() {
 
           {/* Passwords */}
           <div style={{
-            background: 'white',
+            background: theme.bgCard,
             borderRadius: '12px',
             marginBottom: '12px',
-            border: '1px solid #e2e8f0',
+            border: `1px solid ${theme.borderColor}`,
             overflow: 'hidden',
-            transition: 'all 250ms cubic-bezier(0.16, 1, 0.3, 1)'
+            transition: 'all 0.3s ease'
           }}>
             <button
               onClick={() => toggleSection('password')}
@@ -226,7 +250,7 @@ export default function Profile() {
                 cursor: 'pointer',
                 transition: 'background 150ms ease-out'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+              onMouseEnter={(e) => e.currentTarget.style.background = theme.bgHover}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -234,7 +258,7 @@ export default function Profile() {
                   width: '32px',
                   height: '32px',
                   borderRadius: '8px',
-                  background: '#f0fdf4',
+                  background: darkModeEnabled ? '#14532d' : '#f0fdf4',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -246,13 +270,13 @@ export default function Profile() {
                 <span style={{
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: '#1e293b'
+                  color: theme.textMain
                 }}>
                   Passwords
                 </span>
               </div>
               <span style={{
-                color: '#94a3b8',
+                color: theme.textSub,
                 fontSize: '18px',
                 transform: expandedSection === 'password' ? 'rotate(90deg)' : 'rotate(0deg)',
                 transition: 'transform 300ms ease-out'
@@ -264,12 +288,12 @@ export default function Profile() {
             {expandedSection === 'password' && (
               <div style={{
                 padding: '16px 20px',
-                borderTop: '1px solid #e2e8f0',
-                background: '#f8fafc'
+                borderTop: `1px solid ${theme.borderColor}`,
+                background: theme.bgExpanded
               }}>
                 <p style={{
                   fontSize: '13px',
-                  color: '#64748b',
+                  color: theme.textSub,
                   margin: '0',
                   lineHeight: '1.6'
                 }}>
@@ -281,21 +305,22 @@ export default function Profile() {
 
           {/* Mode (Dark Mode Toggle) */}
           <div style={{
-            background: 'white',
+            background: theme.bgCard,
             borderRadius: '12px',
             marginBottom: '12px',
-            border: '1px solid #e2e8f0',
+            border: `1px solid ${theme.borderColor}`,
             padding: '16px 20px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            transition: 'all 0.3s ease'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
                 width: '32px',
                 height: '32px',
                 borderRadius: '8px',
-                background: '#fef3c7',
+                background: darkModeEnabled ? '#78350f' : '#fef3c7',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -307,13 +332,13 @@ export default function Profile() {
               <span style={{
                 fontSize: '14px',
                 fontWeight: '600',
-                color: '#1e293b'
+                color: theme.textMain
               }}>
-                Mode
+                Dark Mode
               </span>
             </div>
             <button
-              onClick={() => setDarkModeEnabled(!darkModeEnabled)}
+              onClick={() => toggleTheme()}
               style={{
                 width: '48px',
                 height: '28px',
@@ -341,21 +366,22 @@ export default function Profile() {
 
           {/* Notifications Toggle */}
           <div style={{
-            background: 'white',
+            background: theme.bgCard,
             borderRadius: '12px',
             marginBottom: '12px',
-            border: '1px solid #e2e8f0',
+            border: `1px solid ${theme.borderColor}`,
             padding: '16px 20px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            transition: 'all 0.3s ease'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
                 width: '32px',
                 height: '32px',
                 borderRadius: '8px',
-                background: '#e0e7ff',
+                background: darkModeEnabled ? '#1e3a8a' : '#e0e7ff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -367,7 +393,7 @@ export default function Profile() {
               <span style={{
                 fontSize: '14px',
                 fontWeight: '600',
-                color: '#1e293b'
+                color: theme.textMain
               }}>
                 Notifications
               </span>
@@ -401,10 +427,11 @@ export default function Profile() {
 
           {/* Logout */}
           <div style={{
-            background: 'white',
+            background: theme.bgCard,
             borderRadius: '12px',
-            border: '1px solid #e2e8f0',
-            overflow: 'hidden'
+            border: `1px solid ${theme.borderColor}`,
+            overflow: 'hidden',
+            transition: 'all 0.3s ease'
           }}>
             <button
               onClick={() => toggleSection('logout')}
@@ -419,7 +446,7 @@ export default function Profile() {
                 cursor: 'pointer',
                 transition: 'background 150ms ease-out'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+              onMouseEnter={(e) => e.currentTarget.style.background = theme.bgHover}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -427,7 +454,7 @@ export default function Profile() {
                   width: '32px',
                   height: '32px',
                   borderRadius: '8px',
-                  background: '#fee2e2',
+                  background: darkModeEnabled ? '#7f1d1d' : '#fee2e2',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -439,13 +466,13 @@ export default function Profile() {
                 <span style={{
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: '#1e293b'
+                  color: theme.textMain
                 }}>
                   Logout
                 </span>
               </div>
               <span style={{
-                color: '#94a3b8',
+                color: theme.textSub,
                 fontSize: '18px',
                 transform: expandedSection === 'logout' ? 'rotate(90deg)' : 'rotate(0deg)',
                 transition: 'transform 300ms ease-out'
@@ -457,12 +484,12 @@ export default function Profile() {
             {expandedSection === 'logout' && (
               <div style={{
                 padding: '16px 20px',
-                borderTop: '1px solid #e2e8f0',
-                background: '#f8fafc'
+                borderTop: `1px solid ${theme.borderColor}`,
+                background: theme.bgExpanded
               }}>
                 <p style={{
                   fontSize: '13px',
-                  color: '#64748b',
+                  color: theme.textSub,
                   margin: '0 0 12px 0',
                   lineHeight: '1.6'
                 }}>

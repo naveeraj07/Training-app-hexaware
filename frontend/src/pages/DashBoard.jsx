@@ -7,8 +7,10 @@ import Schedule from '../pages/Schedule';
 import Placeholder from '../pages/Placeholder';
 import ProgressView from './ProgressView.jsx';
 import Profile from '../pages/Profile';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 export default function DashBoard() {
+  const { isDarkMode } = useTheme();
   // 1. Convert profile to a state object to handle asynchronous API loading
   const [profile, setProfile] = useState({ name: "Loading...", email: "" });
   
@@ -120,7 +122,7 @@ export default function DashBoard() {
   ];
 
   return (
-    <div className="app-container">
+    <div className={`app-container ${isDarkMode ? 'dark-theme' : ''}`}>
       {/* Sidebar Navigation */}
       <aside className="sidebar">
         <div className="sidebar-header">
