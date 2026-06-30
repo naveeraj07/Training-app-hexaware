@@ -7,16 +7,16 @@ import Schedule from '../pages/Schedule';
 import Placeholder from '../pages/Placeholder';
 import ProgressView from './ProgressView.jsx';
 import Profile from '../pages/Profile';
-import { useTheme } from '../context/ThemeContext.jsx';
 
 export default function DashBoard() {
-  const { isDarkMode } = useTheme();
   // 1. Convert profile to a state object to handle asynchronous API loading
   const [profile, setProfile] = useState({ name: "Loading...", email: "" });
   
   // 🌟 Dynamic Course ID State tracking user's enrollment assignment
   const [courseId, setCourseId] = useState(null);
   const [isCourseLoading, setIsCourseLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 900);
   
   // Hash routing state
   const [currentRoute, setCurrentRoute] = useState(() => {
@@ -51,7 +51,14 @@ export default function DashBoard() {
     const fetchUserAssignedCourse = async () => {
       try {
         setIsCourseLoading(true);
-        const response = await fetch(`/courses/users/${userId}`);
+        // FIX: Include auth token in the request header
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch(`/courses/users/${userId}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+          }
+        });
         const data = await response.json();
         
         // Safely extract the course_id or fall back to 1 if empty
@@ -87,6 +94,25 @@ export default function DashBoard() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 900;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [currentRoute]);
+
   const renderContent = () => {
     switch (currentRoute) {
       case 'home':
@@ -121,10 +147,34 @@ export default function DashBoard() {
     { page: 'profile', icon: 'user', label: 'Profile' }
   ];
 
+  const closeMobileMenu = () => {
+    if (isMobile) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
   return (
-    <div className={`app-container ${isDarkMode ? 'dark-theme' : ''}`}>
+    // FIX: Use app-container here (no duplicate dark-theme class; App.jsx owns theming)
+    <div className="app-container">
+      <div
+        className={`sidebar-overlay ${isMobileMenuOpen ? 'show' : ''}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
+
+      <header className="mobile-topbar">
+        <button
+          type="button"
+          className="mobile-menu-toggle"
+          aria-label="Toggle navigation"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+        >
+          <Icon name={isMobileMenuOpen ? 'x' : 'menu'} className="nav-icon" />
+        </button>
+        <span className="mobile-topbar-title">Hexaware</span>
+      </header>
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <h1 className="logo">Hexaware</h1>
         </div>
@@ -147,6 +197,7 @@ export default function DashBoard() {
                   href={`#${item.page}`} 
                   className={`nav-item ${currentRoute === item.page ? 'active' : ''}`}
                   data-page={item.page}
+                  onClick={closeMobileMenu}
                 >
                   <Icon name={item.icon} className="nav-icon" />
                   <span>{item.label}</span>
@@ -156,22 +207,23 @@ export default function DashBoard() {
           </ul>
         </nav>
         
-        {/* Logout at bottom */}
+        {/* Logout at bottom — FIX: use <button> not <a href="#logout"> to prevent hash flicker */}
         <div className="sidebar-footer">
-          <a 
-            href="#logout" 
+          <button 
+            type="button"
             className={`nav-item logout-btn ${currentRoute === 'logout' ? 'active' : ''}`}
             data-page="logout"
             onClick={() => {
               localStorage.removeItem('authToken');
               localStorage.removeItem('user');
               localStorage.removeItem('logged_in_user_id');
+              closeMobileMenu();
               window.location.href = '/'; 
             }}
           >
             <Icon name="log-out" className="nav-icon" />
             <span>Logout</span>
-          </a>
+          </button>
         </div>
       </aside>
 

@@ -3,6 +3,7 @@ import courseService from '../services/courseService';
 import dashboardService from '../services/dashboardService';
 import Icon from '../components/Icon';
 import '../styles/Course.css';
+import Assignment from '../components/Assignment.jsx'
 
 // 🌟 Prop Injection: Accept courseId dynamically from DashBoard parent component shell
 export default function Course({ courseId }) {
@@ -34,6 +35,17 @@ export default function Course({ courseId }) {
   // Progress states
   const [completedLessons, setCompletedLessons] = useState(new Set());
   const [progressPercentage, setProgressPercentage] = useState(0);
+
+  const getModuleByDayId = (dayId) => {
+    if (!course || dayId === null || dayId === undefined) return null;
+    return course.modules.find(module => String(module.id) === String(dayId)) || null;
+  };
+
+  const isDayFullyCompleted = (dayId) => {
+    const module = getModuleByDayId(dayId);
+    if (!module || !module.lessons.length) return false;
+    return module.lessons.every(lesson => completedLessons.has(String(lesson.id)));
+  };
 
   // Fetch Structure and Progress from Backend
   const syncCourseProgressAndDashboard = useCallback(async (showLoading = false) => {
@@ -67,7 +79,8 @@ export default function Course({ courseId }) {
             id: unit.unit_id || unit.id,
             title: unit.title || "Untitled Unit",
             duration: unit.duration_mins ? `${unit.duration_mins}m` : "Estimated: 45m",
-            type: unit.type || "theory"
+            type: unit.type || "theory",
+            dayId: day.day_number || day.day_id
           }))
         }))
       };
@@ -76,11 +89,11 @@ export default function Course({ courseId }) {
       setProgressPercentage(progressData?.progress_percentage || progressData?.percentage || 0); 
 
       if (Array.isArray(progressData?.completed_units)) {
-        setCompletedLessons(new Set(progressData.completed_units));
+        setCompletedLessons(new Set(progressData.completed_units.map(id => String(id))));
       } else if (progressData?.completed_units) {
-        setCompletedLessons(new Set([progressData.completed_units]));
+        setCompletedLessons(new Set([String(progressData.completed_units)]));
       } else if (Array.isArray(progressData?.completed_learning_units)) { 
-        setCompletedLessons(new Set(progressData.completed_learning_units));
+        setCompletedLessons(new Set(progressData.completed_learning_units.map(id => String(id))));
       }
 
       // Keep completed videos globally accurate across initial re-syncs
@@ -108,9 +121,10 @@ export default function Course({ courseId }) {
 
   // Automated Progress Sync
   const triggerLessonCompletion = async (lessonId) => {
-    if (completedLessons.has(lessonId)) return;
+    const normalizedLessonId = String(lessonId);
+    if (completedLessons.has(normalizedLessonId)) return;
 
-    setCompletedLessons(prev => new Set(prev).add(lessonId));
+    setCompletedLessons(prev => new Set(prev).add(normalizedLessonId));
 
     try {
       await courseService.markUnitComplete(userId, lessonId);
@@ -119,7 +133,7 @@ export default function Course({ courseId }) {
       console.error("Failed to sync progress with database:", err);
       setCompletedLessons(prev => {
         const next = new Set(prev);
-        next.delete(lessonId);
+        next.delete(normalizedLessonId);
         return next;
       });
     }
@@ -202,6 +216,8 @@ export default function Course({ courseId }) {
   if (isLoading) return <div className="course-viewport-centered-fallback"><h3>Loading Course Details...</h3></div>;
   if (error) return <div className="course-viewport-centered-fallback"><h3 className="error-headline-text">{error}</h3></div>;
   if (!course) return null; 
+
+  const activeAssignmentDayId = selectedLesson?.dayId || expandedDay || currentUnlockedDay;
 
   if (subView === 'outline') {
     return (
@@ -286,7 +302,7 @@ export default function Course({ courseId }) {
                         let isLessonChainBroken = false;
 
                         return module.lessons.map((lesson, lessonIdx) => {
-                          const isCompleted = completedLessons.has(lesson.id);
+                          const isCompleted = completedLessons.has(String(lesson.id));
                           let isLessonLocked = false;
 
                           // Sequential Gate checking if this isn't the first item
@@ -512,7 +528,13 @@ export default function Course({ courseId }) {
             />
           )}
           {activeHorizontalTab === 'Notes' && <NotesSection learningUnitId={selectedLesson?.id} />}
-          {activeHorizontalTab === 'Assignment' && <AssignmentSection />}
+          {activeHorizontalTab === 'Assignment' && (
+            <Assignment
+              courseDayId={activeAssignmentDayId}
+              userId={userId}
+              isUnlocked={isDayFullyCompleted(activeAssignmentDayId)}
+            />
+          )}
           {activeHorizontalTab === 'Q&A' && <QnASection learningUnitId={selectedLesson?.id} />}
         </div>
       </div>
