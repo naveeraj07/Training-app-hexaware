@@ -330,36 +330,71 @@
 
 /* Responsive Table Layout */
 @media (max-width: 1024px) {
-  .timetable-grid {
-    grid-template-columns: 80px repeat(6, 120px);
-    overflow-x: auto;
-  }
-  .timetable-outer-container {
-    overflow-x: auto;
-  }
-  .schedule-stats-card {
-    gap: 20px;
-    justify-content: space-between;
-  }
-}
-@media (max-width: 768px) {
   .schedule-banner {
-    flex-direction: column;
-    height: auto;
-    min-height: 200px;
-    padding-bottom: 80px;
-  }
-  .schedule-banner-right {
-    margin-top: 12px;
-  }
-  .schedule-stats-card {
-    left: 20px;
-    right: 20px;
-    bottom: -50px;
     flex-wrap: wrap;
     gap: 16px;
+    height: auto;
+    min-height: 220px;
   }
+
+  .schedule-banner-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .schedule-stats-card {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    margin-top: 16px;
+    gap: 20px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
   .timetable-outer-container {
-    margin-top: 60px;
+    overflow-x: auto;
+  }
+
+  .timetable-grid {
+    min-width: 760px;
+    grid-template-columns: 90px repeat(6, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .schedule-container {
+    gap: 20px;
+  }
+
+  .schedule-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 16px 20px;
+  }
+
+  .schedule-banner-right {
+    margin-top: 8px;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .schedule-banner-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .schedule-stats-card {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .timetable-outer-container {
+    margin-top: 8px;
+  }
+
+  .timetable-grid {
+    min-width: 700px;
   }
 }

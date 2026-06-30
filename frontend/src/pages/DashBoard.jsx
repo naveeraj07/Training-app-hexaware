@@ -15,6 +15,8 @@ export default function DashBoard() {
   // 🌟 Dynamic Course ID State tracking user's enrollment assignment
   const [courseId, setCourseId] = useState(null);
   const [isCourseLoading, setIsCourseLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 900);
   
   // Hash routing state
   const [currentRoute, setCurrentRoute] = useState(() => {
@@ -85,6 +87,25 @@ export default function DashBoard() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 900;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [currentRoute]);
+
   const renderContent = () => {
     switch (currentRoute) {
       case 'home':
@@ -119,10 +140,33 @@ export default function DashBoard() {
     { page: 'profile', icon: 'user', label: 'Profile' }
   ];
 
+  const closeMobileMenu = () => {
+    if (isMobile) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
   return (
     <div className="app-container">
+      <div
+        className={`sidebar-overlay ${isMobileMenuOpen ? 'show' : ''}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
+
+      <header className="mobile-topbar">
+        <button
+          type="button"
+          className="mobile-menu-toggle"
+          aria-label="Toggle navigation"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+        >
+          <Icon name={isMobileMenuOpen ? 'x' : 'menu'} className="nav-icon" />
+        </button>
+        <span className="mobile-topbar-title">Hexaware</span>
+      </header>
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <h1 className="logo">Hexaware</h1>
         </div>
@@ -145,6 +189,7 @@ export default function DashBoard() {
                   href={`#${item.page}`} 
                   className={`nav-item ${currentRoute === item.page ? 'active' : ''}`}
                   data-page={item.page}
+                  onClick={closeMobileMenu}
                 >
                   <Icon name={item.icon} className="nav-icon" />
                   <span>{item.label}</span>
@@ -164,6 +209,7 @@ export default function DashBoard() {
               localStorage.removeItem('authToken');
               localStorage.removeItem('user');
               localStorage.removeItem('logged_in_user_id');
+              closeMobileMenu();
               window.location.href = '/'; 
             }}
           >

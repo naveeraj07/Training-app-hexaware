@@ -4,19 +4,19 @@
 .course-main-viewport {
   display: flex;
   flex-direction: column;
-  /* 💎 FIX: Changed from 100vh to 100% so it perfectly fits inside .main-content */
   height: 100%; 
   width: 100%;
   box-sizing: border-box;
   background-color: #f8fafc;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .course-workspace-scroll-area {
   flex-grow: 1;
-  /* 💎 FIX: Allows the flexbox child container to compress and activate scrollbars */
   min-height: 0; 
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 32px 40px;
   display: flex;
   flex-direction: column;
@@ -674,6 +674,7 @@
   width: 100%;
   max-width: 1280px;
   box-sizing: border-box;
+  min-width: 0;
 }
 
 /* Base Card Blueprint Containers */
