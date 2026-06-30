@@ -8,7 +8,15 @@ from app.routers.progress import router as progress_router
 
 from app.routers.schedule import router as schedule_router
 
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI()
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory="app/uploads"),
+    name="uploads"
+)
 
 app.include_router(auth_router)
 app.include_router(course_router)
