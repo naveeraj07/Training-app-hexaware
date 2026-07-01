@@ -29,11 +29,32 @@ export default function Course({ courseId }) {
   // Video Player & Playlist States
   const [unitVideos, setUnitVideos] = useState([]);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
-  const [completedVideos, setCompletedVideos] = useState(new Set()); 
+  const [completedVideos, setCompletedVideos] = useState(() => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      const raw = window.localStorage.getItem(`course-video-progress-${activeCourseId}-${userId}`);
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch (err) {
+      console.error('Failed to load persisted video progress:', err);
+      return new Set();
+    }
+  }); 
 
   // Progress states
   const [completedLessons, setCompletedLessons] = useState(new Set());
   const [progressPercentage, setProgressPercentage] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(
+        `course-video-progress-${activeCourseId}-${userId}`,
+        JSON.stringify([...completedVideos])
+      );
+    } catch (err) {
+      console.error('Failed to persist video progress:', err);
+    }
+  }, [completedVideos, activeCourseId, userId]);
 
   // Converts Google Drive share/view links into playable direct links for <video>
   const normalizeVideoUrl = (url) => {
@@ -88,20 +109,22 @@ export default function Course({ courseId }) {
       setCourse(mappedCourse);
       setProgressPercentage(progressData?.progress_percentage || progressData?.percentage || 0); 
 
-      if (Array.isArray(progressData?.completed_units)) {
+      if (Array.isArray(progressData?.completed_learning_units)) {
+        setCompletedLessons(new Set(progressData.completed_learning_units.map(id => Number(id))));
+      } else if (Array.isArray(progressData?.completed_units)) {
         setCompletedLessons(new Set(progressData.completed_units));
       } else if (progressData?.completed_units) {
         setCompletedLessons(new Set([progressData.completed_units]));
-      } else if (Array.isArray(progressData?.completed_learning_units)) { 
-        setCompletedLessons(new Set(progressData.completed_learning_units));
       } else {
         setCompletedLessons(new Set());
       }
 
       if (Array.isArray(progressData?.completed_videos)) {
-        setCompletedVideos(new Set(progressData.completed_videos.map(id => String(id))));
-      } else {
-        setCompletedVideos(new Set());
+        setCompletedVideos(prev => {
+          const next = new Set(prev);
+          progressData.completed_videos.forEach(id => next.add(String(id)));
+          return next;
+        });
       }
 
     } catch (err) {
@@ -156,10 +179,12 @@ export default function Course({ courseId }) {
     try {
       const progressData = await courseService.getCourseProgress(activeCourseId, userId);
       console.log("Progress Data:", progressData);
-      if (progressData?.completed_videos) {
-        setCompletedVideos(new Set(progressData.completed_videos.map(id => String(id))));
-      } else {
-        setCompletedVideos(new Set());
+      if (Array.isArray(progressData?.completed_videos)) {
+        setCompletedVideos(prev => {
+          const next = new Set(prev);
+          progressData.completed_videos.forEach(id => next.add(String(id)));
+          return next;
+        });
       }
 
       const videos = await courseService.getUnitVideos(lesson.id);
@@ -210,59 +235,24 @@ console.log("Normalized URL:", normalizeVideoUrl(videos[0].video_url || videos[0
       next.add(videoId);
       return next;
     });
-    console.log("Completed video:", videoId);
-    console.log("Completed videos state will contain:", videoId);
-try {
-    if (typeof courseService.markVideoComplete === 'function') {
+
+    try {
+      if (typeof courseService.markVideoComplete === 'function') {
         await courseService.markVideoComplete(userId, videoId);
-    }
-
-    const nextIndex = currentIndex + 1;
-
-    if (nextIndex < unitVideos.length) {
-        const nextVid = unitVideos[nextIndex];
-
-        setCompletedVideos(prev => {
-            const next = new Set(prev);
-            next.add(videoId);
-            return next;
-        });
-
-        setCurrentVideoUrl(
-            normalizeVideoUrl(nextVid.video_url || nextVid.url)
-        );
-    } else {
-        if (selectedLesson) {
-            await triggerLessonCompletion(selectedLesson.id);
-        }
-    }
-
-    // Sync AFTER changing the video
-    await syncCourseProgressAndDashboard(false);
-
-} catch (err) {
-    console.error("Failed to sync video completion to backend:", err);
-}
-
-    const nextIndex = currentIndex + 1;
-
-if (nextIndex < unitVideos.length) {
-    const nextVid = unitVideos[nextIndex];
-
-    setCompletedVideos(prev => {
-        const next = new Set(prev);
-        next.add(videoId);
-        return next;
-    });
-
-    setCurrentVideoUrl(
-        normalizeVideoUrl(nextVid.video_url || nextVid.url)
-    );
-}
-    else {
-      if (selectedLesson) {
-        triggerLessonCompletion(selectedLesson.id);
       }
+
+      const nextIndex = currentIndex + 1;
+
+      if (nextIndex < unitVideos.length) {
+        const nextVid = unitVideos[nextIndex];
+        setCurrentVideoUrl(normalizeVideoUrl(nextVid.video_url || nextVid.url));
+      } else if (selectedLesson) {
+        await triggerLessonCompletion(selectedLesson.id);
+      }
+
+      await syncCourseProgressAndDashboard(false);
+    } catch (err) {
+      console.error('Failed to sync video completion to backend:', err);
     }
   };
 
