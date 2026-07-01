@@ -33,7 +33,9 @@ async def create_user(
 
     user = User(
         employee_id=user_data.employee_id,
+        name=user_data.name,
         email=user_data.email,
+        course_id=user_data.course_id,
         is_active=False
     )
 
@@ -41,6 +43,14 @@ async def create_user(
 
     await db.commit()
     await db.refresh(user)
+
+    token_obj = await generate_activation_token(db, user.id)
+
+    # 3. create link
+    activation_link = f"http://localhost:3000/create-password?token={token_obj.token}"
+
+    # 4. send email (Mailtrap later)
+    await send_activation_email(user.email, activation_link)
 
     return user
 
@@ -197,7 +207,7 @@ async def forgot_password(db: AsyncSession, email: str):
     await db.refresh(token_entry)
 
     # 6. Create reset link (frontend will handle this)
-    reset_link = f"http://localhost:3000/reset-password?token={reset_token}"
+    reset_link = f"http://localhost:5173/reset-password?token={reset_token}"
 
     # 7. TEMP: print instead of email (we’ll integrate fastapi-mail later)
     await send_reset_email(user.email, reset_link)
@@ -250,7 +260,7 @@ async def reset_password(
     return {"message": "Password reset successful"}
 
 
-async def request_activation(db, email: str):
+'''async def request_activation(db, email: str):
 
     # 1. find user
     user = await db.scalar(
@@ -267,9 +277,9 @@ async def request_activation(db, email: str):
     token_obj = await generate_activation_token(db, user.id)
 
     # 3. create link
-    activation_link = f"http://localhost:3000/create-password?token={token_obj.token}"
+    activation_link = f"http://localhost:5173/create-password?token={token_obj.token}"
 
     # 4. send email (Mailtrap later)
     await send_activation_email(user.email, activation_link)
 
-    return {"message": "Activation email sent"}
+    return {"message": "Activation email sent"}'''

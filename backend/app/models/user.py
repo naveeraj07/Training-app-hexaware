@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy import ForeignKey
 from app.database.base import Base
 
 
@@ -21,11 +21,21 @@ class User(Base):
         nullable=False
     )
 
+    name: Mapped[str] = mapped_column(
+    String(255),
+    nullable=True
+)
+    
     email: Mapped[str] = mapped_column(
         String(255),
         unique=True,
         nullable=False
     )
+
+    course_id: Mapped[int | None] = mapped_column(
+           Integer,
+          nullable=True
+   )
 
     password_hash: Mapped[str | None] = mapped_column(
         String(255),
