@@ -213,15 +213,35 @@ console.log("Normalized URL:", normalizeVideoUrl(videos[0].video_url || videos[0
     console.log("Completed video:", videoId);
     console.log("Completed videos state will contain:", videoId);
 try {
-  if (typeof courseService.markVideoComplete === 'function') {
-    await courseService.markVideoComplete(userId, videoId);
-  }
+    if (typeof courseService.markVideoComplete === 'function') {
+        await courseService.markVideoComplete(userId, videoId);
+    }
 
-  // Refresh progress from backend so next video unlocks
-  await syncCourseProgressAndDashboard(false);
+    const nextIndex = currentIndex + 1;
+
+    if (nextIndex < unitVideos.length) {
+        const nextVid = unitVideos[nextIndex];
+
+        setCompletedVideos(prev => {
+            const next = new Set(prev);
+            next.add(videoId);
+            return next;
+        });
+
+        setCurrentVideoUrl(
+            normalizeVideoUrl(nextVid.video_url || nextVid.url)
+        );
+    } else {
+        if (selectedLesson) {
+            await triggerLessonCompletion(selectedLesson.id);
+        }
+    }
+
+    // Sync AFTER changing the video
+    await syncCourseProgressAndDashboard(false);
 
 } catch (err) {
-  console.error("Failed to sync video completion to backend:", err);
+    console.error("Failed to sync video completion to backend:", err);
 }
 
     const nextIndex = currentIndex + 1;
