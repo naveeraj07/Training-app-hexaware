@@ -90,21 +90,21 @@ html, body, #root {
 }
 
 .search-clear-btn {
-  position: absolute;
-  right: 14px;
-  background: rgba(255, 255, 255, 0.2);
+  /* ... keep your existing positioning properties like position: absolute, right, top, transform ... */
+  
+  /* Force it to be black and clearly visible at all times */
+  color: #000000 !important; 
+  opacity: 1 !important;
+  background: transparent;
   border: none;
-  color: #ffffff;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  line-height: 1;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
+
+/* Optional: Give it a slight effect when hovered so the user knows it's interactive */
+.search-clear-btn:hover {
+  color: #ef4444; /* Turns red on hover to signal deletion/clearing */
+  transform: scale(1.1);}
 
 .notes-search-input-premium:focus ~ .search-clear-btn {
   color: #475569;
