@@ -53,11 +53,15 @@ export default function DashBoard() {
 const response = await fetch(
     `${API_BASE}/courses/users/${userId}`
 );
-        const data = await response.json();
-        
-        // Safely extract the course_id or fall back to 1 if empty
-        const assignedId = data?.enrolled_courses?.[0]?.course_id || data?.course_id || 1;
-        setCourseId(assignedId);
+const data = await response.json();
+
+console.log("Courses API Response:", data);
+
+const assignedId = data[0]?.id ?? 1;
+
+console.log("Assigned Course ID:", assignedId);
+
+setCourseId(assignedId);
       } catch (error) {
         console.error("Failed to load assigned user course:", error);
         setCourseId(1); // Production Fallback to default course
