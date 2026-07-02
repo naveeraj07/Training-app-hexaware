@@ -156,7 +156,7 @@ const courseService = {
         content: `<h3>Key Concepts for Unit ${learningUnitId}</h3><p>This is mock theory data. In a real scenario, this would be rich HTML or Markdown text stored in your database explaining the concept in detail.</p>`
       };
     }
-    const response = await apiClient.get(`/courses/units/${learningUnitId}/notes`);
+    const response = await apiClient.get(`/courses/units/${learningUnitId}/content`);
     return response.data;
   },
 

@@ -24,5 +24,5 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
 
-class RequestActivation(BaseModel):
-    email: EmailStr
+'''class RequestActivation(BaseModel):
+    email: EmailStr'''

@@ -51,18 +51,28 @@ export default function DashBoard() {
     const fetchUserAssignedCourse = async () => {
       try {
         setIsCourseLoading(true);
-        // FIX: Include auth token in the request header
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch(`/courses/users/${userId}`, {
+
+        const response = await fetch(`http://localhost:8000/courses/users/${userId}`, {
           headers: {
             'Content-Type': 'application/json',
-            ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
           }
         });
+
         const data = await response.json();
-        
-        // Safely extract the course_id or fall back to 1 if empty
-        const assignedId = data?.enrolled_courses?.[0]?.course_id || data?.course_id || 1;
+
+        console.log("Courses API Response:", data);
+
+        // Support multiple possible response formats
+        const assignedId =
+          data?.enrolled_courses?.[0]?.course_id ??
+          data?.course_id ??
+          data?.[0]?.id ??
+          1;
+
+        console.log("Assigned Course ID:", assignedId);
+
         setCourseId(assignedId);
       } catch (error) {
         console.error("Failed to load assigned user course:", error);
