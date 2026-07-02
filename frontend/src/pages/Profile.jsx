@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext.jsx';
 // Make sure to import your components correctly
 // import Icon from '../components/Icon'; 
-// import dashboardService from '../services/dashboardService.js';
+import dashboardService from '../services/dashboardService.js';
 
 export default function Profile() {
   const [expandedSection, setExpandedSection] = useState(null);
@@ -23,9 +23,9 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        // const data = await dashboardService.getProfileViewData(userId);
+         const data = await dashboardService.getProfileViewData(userId);
         // Using mock data here for demonstration
-        const data = { name: "John Doe", email: "john@example.com" };
+        //const data = { name: "John Doe", email: "john@example.com" };
         if (data) {
           setProfileData(data);
         }
