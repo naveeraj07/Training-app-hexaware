@@ -53,3 +53,5 @@ from app.models.assessment import (
     QuestionType,
     AttemptStatus,
 )
+from app.models.trainee_feedback import TraineeFeedback
+

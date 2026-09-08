@@ -338,3 +338,176 @@
     display: none;
   }
 }
+
+/* ──────────────────────────────────────────── */
+/* Mode Switcher (Syllabus vs Rankings)         */
+/* ──────────────────────────────────────────── */
+.batch-mode-toggle-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: -8px;
+}
+
+.batch-mode-toggle {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.batch-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.batch-mode-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.batch-ranking-summary-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Rankings Grid Layout */
+.trainee-table-header.ranking-header {
+  grid-template-columns: 80px 2.2fr 1.3fr 1fr 1fr 1.2fr;
+}
+
+.trainee-row.ranking-row {
+  grid-template-columns: 80px 2.2fr 1.3fr 1fr 1fr 1.2fr;
+}
+
+/* Rank Badge */
+.rank-badge-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.rank-1 {
+  background: linear-gradient(135deg, #fef08a 0%, #eab308 100%);
+  color: #713f12;
+  border: 2px solid #ca8a04;
+}
+
+.rank-2 {
+  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+  color: #334155;
+  border: 2px solid #94a3b8;
+}
+
+.rank-3 {
+  background: linear-gradient(135deg, #fed7aa 0%, #f97316 100%);
+  color: #7c2d12;
+  border: 2px solid #ea580c;
+}
+
+.rank-other {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* Composite Score */
+.composite-score-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.composite-score-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.tier-badge {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.tier-top       { background: #dcfce7; color: #15803d; }
+.tier-ontrack   { background: #dbeafe; color: #1d4ed8; }
+.tier-attention { background: #fee2e2; color: #b91c1c; }
+
+/* Metric item in ranking row */
+.ranking-metric-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ranking-metric-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.ranking-metric-sub {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+/* Action button */
+.feedback-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #2563eb;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.feedback-action-btn:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+

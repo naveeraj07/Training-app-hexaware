@@ -301,3 +301,159 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ──────────────────────────────────────────── */
+/* Leaderboard Podium & Standings Section       */
+/* ──────────────────────────────────────────── */
+.perf-podium-section {
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.perf-podium-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.perf-podium-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.perf-podium-card {
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.perf-podium-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.perf-podium-1 {
+  background: linear-gradient(180deg, #fefce8 0%, #fef08a 100%);
+  border: 2px solid #eab308;
+  order: 2;
+}
+
+.perf-podium-2 {
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 2px solid #94a3b8;
+  order: 1;
+}
+
+.perf-podium-3 {
+  background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
+  border: 2px solid #f97316;
+  order: 3;
+}
+
+.perf-podium-medal {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.perf-podium-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.perf-podium-score {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.perf-podium-1 .perf-podium-score { color: #854d0e; }
+.perf-podium-2 .perf-podium-score { color: #334155; }
+.perf-podium-3 .perf-podium-score { color: #9a3412; }
+
+.perf-podium-stats {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* At-risk intervention panel */
+.perf-at-risk-section {
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid #fed7aa;
+  box-shadow: var(--card-shadow);
+  padding: 24px 28px;
+}
+
+.perf-at-risk-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.perf-at-risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.perf-at-risk-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-radius: 12px;
+}
+
+.perf-at-risk-trainee {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.perf-at-risk-action-btn {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.perf-at-risk-action-btn:hover {
+  background: #c2410c;
+}
+
+@media (max-width: 768px) {
+  .perf-podium-grid {
+    grid-template-columns: 1fr;
+  }
+  .perf-podium-1, .perf-podium-2, .perf-podium-3 {
+    order: unset;
+  }
+}
+

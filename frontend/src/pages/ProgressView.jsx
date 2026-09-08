@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import progressService from '../services/progressService';
+import trainerService from '../services/trainerService';
 import Icon from '../components/Icon';
 
 export default function ProgressView() {
   const [progressData, setProgressData] = useState(null);
+  const [trainerFeedback, setTrainerFeedback] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -16,6 +18,14 @@ export default function ProgressView() {
         let data = null;
         if (typeof progressService.getProgressOverview === 'function') {
           data = await progressService.getProgressOverview();
+        }
+
+        // Also fetch feedback from trainer
+        try {
+          const fb = await trainerService.getMyTrainerFeedback();
+          setTrainerFeedback(fb || []);
+        } catch (e) {
+          console.warn("Could not load trainer feedback:", e);
         }
 
         if (!data) {
@@ -48,6 +58,7 @@ export default function ProgressView() {
 
     fetchProgressTelemetry();
   }, []);
+
 
   if (isLoading) {
     return (
@@ -295,6 +306,97 @@ export default function ProgressView() {
           ))}
         </div>
       </div>
+
+      {/* 4. Trainer Mentorship & Developmental Feedback */}
+      <div
+        className="progress-card"
+        style={{
+          backgroundColor: 'var(--bg-sidebar)',
+          borderRadius: '20px',
+          padding: '28px',
+          border: '1px solid var(--border-color)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: 'var(--text-dark)' }}>
+              Trainer Mentorship & Feedback
+            </h3>
+            <span style={{ fontSize: '13px', color: 'var(--text-medium)' }}>
+              Direct qualitative reviews and developmental guidance from your batch trainers
+            </span>
+          </div>
+          <Icon name="message-square" style={{ width: 22, height: 22, color: 'var(--primary-blue)' }} />
+        </div>
+
+        {trainerFeedback.length === 0 ? (
+          <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-medium)', background: 'var(--bg-main)', borderRadius: '16px' }}>
+            No formal trainer reviews submitted yet. Feedback will appear here as your batch trainer evaluates your progress and code submissions.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {trainerFeedback.map((fb) => (
+              <div
+                key={fb.id}
+                style={{
+                  padding: '20px',
+                  backgroundColor: 'var(--bg-main)',
+                  borderRadius: '16px',
+                  border: '1px solid var(--border-color)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span
+                      style={{
+                        background: '#dbeafe',
+                        color: '#1d4ed8',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                      }}
+                    >
+                      {fb.category}
+                    </span>
+                    <strong style={{ fontSize: '14px', color: 'var(--text-dark)' }}>
+                      Trainer: {fb.trainer_name}
+                    </strong>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#f59e0b', fontWeight: '700', fontSize: '14px' }}>
+                    <span>★ {fb.rating} / 5</span>
+                    <span style={{ color: 'var(--text-medium)', fontSize: '12px', marginLeft: '8px' }}>
+                      {new Date(fb.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-dark)', lineHeight: '1.5' }}>
+                  "{fb.feedback_text}"
+                </p>
+
+                {(fb.strengths || fb.areas_of_improvement) && (
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '4px', fontSize: '12px' }}>
+                    {fb.strengths && (
+                      <span style={{ color: '#059669', background: '#ecfdf5', padding: '3px 8px', borderRadius: '4px' }}>
+                        ✓ Strength: {fb.strengths}
+                      </span>
+                    )}
+                    {fb.areas_of_improvement && (
+                      <span style={{ color: '#d97706', background: '#fffbeb', padding: '3px 8px', borderRadius: '4px' }}>
+                        ⚠ Focus Area: {fb.areas_of_improvement}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+}

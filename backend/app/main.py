@@ -42,7 +42,7 @@ from app.routers import attendance_record
 
 # Messaging & Community router
 from app.routers.messaging_router import router as messaging_router
-from app.database.session import test_connection, AsyncSessionLocal
+from app.database.session import test_connection, AsyncSessionLocal, engine
 from app.utils.index_setup import setup_indexes
 from app.services.messaging_service import seed_default_communities
 
@@ -59,9 +59,14 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup():
     await test_connection()
+    async with engine.begin() as conn:
+        from app.database.base import Base
+        import app.models  # Ensure all models are registered
+        await conn.run_sync(Base.metadata.create_all)
     await setup_indexes()
     async with AsyncSessionLocal() as db:
         await seed_default_communities(db)
+
 
 
 

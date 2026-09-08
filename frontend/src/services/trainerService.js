@@ -40,7 +40,24 @@ const trainerService = {
   getAnalyticsAlerts: async (batchId) => {
     const response = await apiClient.get(`/api/trainer/analytics/alerts?batch_id=${batchId}`);
     return response.data;
+  },
+  getBatchRankings: async (batchId) => {
+    const response = await apiClient.get(`/api/trainer/batches/${batchId}/rankings`);
+    return response.data;
+  },
+  submitTraineeFeedback: async (traineeId, feedbackData) => {
+    const response = await apiClient.post(`/api/trainer/trainees/${traineeId}/feedback`, feedbackData);
+    return response.data;
+  },
+  getTraineeFeedbackHistory: async (traineeId) => {
+    const response = await apiClient.get(`/api/trainer/trainees/${traineeId}/feedback`);
+    return response.data;
+  },
+  getMyTrainerFeedback: async () => {
+    const response = await apiClient.get('/api/trainer/my-feedback');
+    return response.data;
   }
 };
 
 export default trainerService;
+
