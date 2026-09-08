@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import courseService from '../services/courseService';
 import dashboardService from '../services/dashboardService';
 import Icon from '../components/Icon';
-import '../styles/Course.css';
+import '../styles/course.css';
 import Assignment from '../components/Assignment.jsx'
 import { qaService } from '../services/qaService';
 import { caseStudyService } from '../services/caseStudyService';

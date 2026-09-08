@@ -9,9 +9,13 @@ import SessionScheduler from './trainer/SessionScheduler';
 import TrainerMentorConnect from './trainer/MentorConnect';
 import Placeholder from './Placeholder';
 import '../styles/trainer/trainer-dashboard.css';
+<<<<<<< HEAD
 import AIChatbot from '../components/AIChatbot';
 
 
+=======
+import hexawareLogo from '../assets/HEXAWARE logo.png';
+>>>>>>> feature/frontend/trainer-dashboard-v2
 
 export default function TrainerDashboard() {
   const [trainerProfile, setTrainerProfile] = useState(() => {
@@ -136,16 +140,19 @@ export default function TrainerDashboard() {
 
       {/* Sidebar navigation */}
       <aside className={`trainer-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
-        <div className="trainer-sidebar-header">
-          <h1 className="trainer-logo">Hexaware</h1>
+        <div className="sidebar-header">
+          <img src={hexawareLogo} alt="Hexaware" className="sidebar-brand-logo" />
+          <h1 className="logo">Mavericks<br />Learning</h1>
         </div>
 
         {/* User profile info */}
-        <div className="trainer-profile-card">
-          <div className="trainer-profile-info">
-            <span className="trainer-label-tag">Role</span>
-            <span className="trainer-name-display">{trainerProfile.name}</span>
-            <span className="trainer-email-display">{trainerProfile.email}</span>
+        <div className="user-profile-card">
+          <div className="profile-avatar" aria-hidden="true">
+            <Icon name="user" />
+          </div>
+          <div className="profile-info">
+            <span className="user-name" id="user-display-name">{trainerProfile.name}</span>
+            <span className="user-email" id="user-display-email">{trainerProfile.email}</span>
           </div>
         </div>
 
