@@ -23,6 +23,7 @@ import AdminCourseAssignment from './pages/admin/AdminCourseAssignment';
 import AdminBatches from './pages/admin/AdminBatches';
 import AdminAssignments from './pages/admin/AdminAssignments';
 import AdminCalendar from './pages/admin/AdminCalendar';
+import AdminMassEnrollment from './pages/admin/AdminMassEnrollment';
 
 // Import Admin Styles
 import './styles/admin.css';
@@ -56,7 +57,8 @@ function AdminApp() {
   }, []);
 
   const renderContent = () => {
-    switch (currentRoute) {
+    const routeKey = currentRoute.split('?')[0];
+    switch (routeKey) {
       case 'admin-dashboard':
         return <AdminDashboard />;
       case 'admin-trainers':
@@ -73,6 +75,8 @@ function AdminApp() {
         return <AdminAssignments />;
       case 'admin-calendar':
         return <AdminCalendar />;
+      case 'admin-mass-enrollment':
+        return <AdminMassEnrollment />;
       default:
         return <AdminDashboard />;
     }
@@ -81,6 +85,7 @@ function AdminApp() {
   const adminNavItems = [
     { page: 'admin-dashboard', icon: 'home', label: 'Dashboard' },
     { type: 'header', label: 'Core Modules' },
+    { page: 'admin-mass-enrollment', icon: 'upload-cloud', label: 'Mass Enrollment' },
     { page: 'admin-trainers', icon: 'user', label: 'Trainer Management' },
     { page: 'admin-students', icon: 'users', label: 'Student Management' },
     { page: 'admin-courses', icon: 'book-open', label: 'Course Management' },
@@ -204,10 +209,25 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<ProtectedRoute><OverallDashboard /></ProtectedRoute>} />
         <Route path="/dashboard/:courseId" element={<ProtectedRoute><DashBoard /></ProtectedRoute>} />
+        <Route path="/course/:courseId" element={<ProtectedRoute><DashBoard /></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
         <Route path="/badges" element={<ProtectedRoute><Badges /></ProtectedRoute>} />
-        <Route path="/trainer-dashboard/*" element={<ProtectedRoute><TrainerDashboard /></ProtectedRoute>} />
-        <Route path="/trainer-dashboard" element={<ProtectedRoute><TrainerDashboard /></ProtectedRoute>} />
+        <Route 
+          path="/trainer-dashboard/*" 
+          element={
+            <ProtectedRoute>
+            <TrainerDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/trainer-dashboard" 
+          element={
+            <ProtectedRoute>
+            <TrainerDashboard />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* Admin route */}
         <Route path="/admin/*" element={<AdminApp />} />

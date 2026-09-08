@@ -12,6 +12,7 @@ import MentorConnect from './trainee/MentorConnect';
 import CommunityConnect from './trainee/CommunityConnect';
 import Leaderboard from './Leaderboard';
 import Badges from './Badges';
+import Schedule from './Schedule';
 import '../styles/overallDashboard.css';
 
 
@@ -269,6 +270,7 @@ export default function OverallDashboard() {
                 </div>
               </div>
             </div>
+
           </div>
         );
 
@@ -459,6 +461,13 @@ export default function OverallDashboard() {
       case 'badges':
         return <Badges />;
 
+      case 'schedule':
+        return (
+          <div className="overall-tab-panel">
+            <Schedule courseId={null} />
+          </div>
+        );
+
       case 'mentor-connect':
         return <MentorConnect />;
 
@@ -476,6 +485,7 @@ export default function OverallDashboard() {
   const navItems = [
     { page: 'home', icon: 'home', label: 'Dashboard' },
     { page: 'courses', icon: 'book-open', label: 'My Courses' },
+    { page: 'schedule', icon: 'clock', label: 'Schedule' },
     { page: 'mentor-connect', icon: 'message-square', label: 'Mentor Connect' },
     { page: 'community-connect', icon: 'users', label: 'Community Connect' },
     { page: 'performance', icon: 'star', label: 'Performance' },
