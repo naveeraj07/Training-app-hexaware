@@ -9,13 +9,8 @@ import SessionScheduler from './trainer/SessionScheduler';
 import TrainerMentorConnect from './trainer/MentorConnect';
 import Placeholder from './Placeholder';
 import '../styles/trainer/trainer-dashboard.css';
-<<<<<<< HEAD
 import AIChatbot from '../components/AIChatbot';
-
-
-=======
 import hexawareLogo from '../assets/HEXAWARE logo.png';
->>>>>>> feature/frontend/trainer-dashboard-v2
 
 export default function TrainerDashboard() {
   const [trainerProfile, setTrainerProfile] = useState(() => {
