@@ -16,6 +16,10 @@ class SessionResponse(BaseModel):
 
     completed: bool
 
+    course_id: int | None = None
+
+    course_name: str | None = None
+
 
 class ScheduleDayResponse(BaseModel):
 
@@ -45,7 +49,7 @@ class ScheduleSummaryResponse(BaseModel):
 
 class ScheduleResponse(BaseModel):
 
-    course_id: int
+    course_id: int | None = None
 
     course_name: str
 

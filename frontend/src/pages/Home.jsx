@@ -617,6 +617,7 @@ export default function Home() {
               </a>
             </div>
           </div>
+
         </>
       ) : (
         <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-medium)' }}>

@@ -181,7 +181,7 @@ export default function DashBoard() {
         }
         return <Course courseId={courseId} onLockChange={setIsLocked} />;
       case 'schedule':
-        return <Schedule />;
+        return <Schedule courseId={null} />;
       case 'progress':
         return <ProgressView />;
 

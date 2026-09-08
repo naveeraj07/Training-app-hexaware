@@ -209,6 +209,7 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<ProtectedRoute><OverallDashboard /></ProtectedRoute>} />
         <Route path="/dashboard/:courseId" element={<ProtectedRoute><DashBoard /></ProtectedRoute>} />
+        <Route path="/course/:courseId" element={<ProtectedRoute><DashBoard /></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
         <Route path="/badges" element={<ProtectedRoute><Badges /></ProtectedRoute>} />
         <Route path="/trainer-dashboard/*" element={<ProtectedRoute><TrainerDashboard /></ProtectedRoute>} />
