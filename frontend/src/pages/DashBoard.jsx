@@ -171,6 +171,8 @@ export default function DashBoard() {
   }, [currentRoute]);
 
   const renderContent = () => {
+    const effectiveCourseId = courseId || (paramCourseId ? Number(paramCourseId) : Number(localStorage.getItem('selected_course_id')) || 1);
+
     switch (currentRoute) {
       case 'home':
         return <Home />;
@@ -179,9 +181,9 @@ export default function DashBoard() {
         if (isCourseLoading) {
           return <div style={{ padding: '40px', textAlign: 'center' }}><h3>Verifying active enrollment...</h3></div>;
         }
-        return <Course courseId={courseId} onLockChange={setIsLocked} />;
+        return <Course courseId={effectiveCourseId} onLockChange={setIsLocked} />;
       case 'schedule':
-        return <Schedule courseId={null} />;
+        return <Schedule courseId={effectiveCourseId} />;
       case 'progress':
         return <ProgressView />;
 

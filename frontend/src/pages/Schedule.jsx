@@ -105,6 +105,8 @@ export default function Schedule({ courseId = null }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'agenda'
 
+  const isCourseScoped = courseId !== null && courseId !== undefined;
+
   useEffect(() => {
     setActiveCourseId(courseId);
   }, [courseId]);
@@ -141,7 +143,20 @@ export default function Schedule({ courseId = null }) {
     loadSchedule();
   }, [currentWeekIndex, activeCourseId]);
 
-  const maxWeekIndex = Math.max((data?.weeks?.length || 1) - 1, 0);
+  const currentCourseName = useMemo(() => {
+    if (!activeCourseId) return null;
+    const found = enrolledCourses.find((c) => Number(c.course_id) === Number(activeCourseId));
+    if (found && found.course_name) return found.course_name;
+    if (data?.title && data.title !== "All Courses") return data.title;
+    return "";
+  }, [activeCourseId, enrolledCourses, data]);
+
+  const currentCourseTheme = useMemo(() => {
+    return getCourseTheme(currentCourseName || "");
+  }, [currentCourseName]);
+
+  const totalWeeksCount = data?.totalWeeks || data?.weeks?.length || 1;
+  const maxWeekIndex = Math.max(totalWeeksCount - 1, 0);
 
   const handlePreviousWeek = () => {
     setCurrentWeekIndex((prev) => Math.max(prev - 1, 0));
@@ -155,34 +170,45 @@ export default function Schedule({ courseId = null }) {
     setCurrentWeekIndex(0);
   };
 
-  const currentWeek = data?.weeks?.[Math.min(currentWeekIndex, maxWeekIndex)] || data?.weeks?.[0];
+  const currentWeek = (data?.weeks?.length > 1)
+    ? (data?.weeks?.[Math.min(currentWeekIndex, maxWeekIndex)] || data?.weeks?.[0])
+    : (data?.weeks?.[0] || { label: `Week ${currentWeekIndex + 1}`, range: "", days: [] });
   const daysList = currentWeek?.days || [];
 
-  // Filtered sessions by search query
+  // Filtered sessions by search query and active course
   const filteredDaysList = useMemo(() => {
-    if (!searchQuery.trim()) return daysList;
-    const q = searchQuery.toLowerCase().trim();
+    if (!daysList) return [];
+    const q = searchQuery.trim().toLowerCase();
 
     return daysList.map((day) => ({
       ...day,
-      sessions: (day.sessions || []).filter((session) =>
-        (session.title || "").toLowerCase().includes(q) ||
-        (session.course_name || "").toLowerCase().includes(q) ||
-        `lu-${session.learning_unit_id}`.toLowerCase().includes(q)
-      )
+      sessions: (day.sessions || []).filter((session) => {
+        // Strict course scoping: if activeCourseId is set, strictly exclude sessions from other courses
+        if (activeCourseId !== null && activeCourseId !== undefined) {
+          if (session.course_id && Number(session.course_id) !== Number(activeCourseId)) {
+            return false;
+          }
+        }
+        if (!q) return true;
+        return (
+          (session.title || "").toLowerCase().includes(q) ||
+          (session.course_name || "").toLowerCase().includes(q) ||
+          `lu-${session.learning_unit_id}`.toLowerCase().includes(q)
+        );
+      })
     }));
-  }, [daysList, searchQuery]);
+  }, [daysList, searchQuery, activeCourseId]);
 
   // Compute completion stats
   const totalWeekSessions = useMemo(() => {
-    return daysList.reduce((acc, day) => acc + (day.sessions?.length || 0), 0);
-  }, [daysList]);
+    return filteredDaysList.reduce((acc, day) => acc + (day.sessions?.length || 0), 0);
+  }, [filteredDaysList]);
 
   const completedWeekSessions = useMemo(() => {
-    return daysList.reduce((acc, day) => {
+    return filteredDaysList.reduce((acc, day) => {
       return acc + (day.sessions || []).filter((s) => s.completed).length;
     }, 0);
-  }, [daysList]);
+  }, [filteredDaysList]);
 
   const completionPercentage = totalWeekSessions > 0
     ? Math.round((completedWeekSessions / totalWeekSessions) * 100)
@@ -206,10 +232,20 @@ export default function Schedule({ courseId = null }) {
         <div className="schedule-empty-state-container">
           <Icon name="calendar" className="empty-icon" />
           <h2>No Schedule Available</h2>
-          <p>There are currently no training sessions assigned for this course view.</p>
-          <button className="schedule-action-btn primary" onClick={() => setActiveCourseId(null)}>
-            View All Courses Schedule
-          </button>
+          <p>
+            {isCourseScoped && currentCourseName
+              ? `There are currently no training sessions assigned for ${currentCourseName}.`
+              : "There are currently no training sessions assigned for this course view."}
+          </p>
+          {isCourseScoped ? (
+            <p className="schedule-empty-hint" style={{ color: 'var(--text-light)', fontSize: '13px' }}>
+              Check back soon or consult your instructor for syllabus milestones.
+            </p>
+          ) : (
+            <button className="schedule-action-btn primary" onClick={() => setActiveCourseId(null)}>
+              View All Courses Schedule
+            </button>
+          )}
         </div>
       </div>
     );
@@ -227,9 +263,15 @@ export default function Schedule({ courseId = null }) {
               <Icon name="calendar" />
             </div>
             <div>
-              <h1 className="schedule-banner-title">Training Schedule</h1>
+              <h1 className="schedule-banner-title">
+                {isCourseScoped && currentCourseName
+                  ? `${currentCourseName} Schedule`
+                  : "Training Schedule"}
+              </h1>
               <p className="schedule-banner-subtitle">
-                View, filter, and track daily live sessions, module milestones, and program roadmaps.
+                {isCourseScoped && currentCourseName
+                  ? `View, track daily live sessions, and monitor progress milestones for ${currentCourseName}.`
+                  : "View, filter, and track daily live sessions, module milestones, and program roadmaps."}
               </p>
             </div>
           </div>
@@ -293,63 +335,78 @@ export default function Schedule({ courseId = null }) {
       {/* 🎯 Prominent Course Filter & Control Bar */}
       <div className="schedule-control-bar">
         <div className="control-left">
-          {/* Prominent Course Dropdown Filter */}
-          <div className="course-dropdown-wrapper">
-            <label htmlFor="course-select-filter" className="course-select-label">
-              <Icon name="book-open" className="select-label-icon" />
-              <span>Course Filter:</span>
-            </label>
-            <div className="custom-select-container">
-              <select
-                id="course-select-filter"
-                className="course-select-dropdown"
-                value={activeCourseId === null ? "all" : String(activeCourseId)}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setActiveCourseId(val === "all" ? null : Number(val));
-                }}
-              >
-                <option value="all">✨ All Courses (Overall Schedule)</option>
-                {enrolledCourses.map((c) => (
-                  <option key={c.course_id} value={c.course_id}>
-                    📚 {c.course_name}
-                  </option>
-                ))}
-              </select>
-              <Icon name="chevron-down" className="select-caret-icon" />
+          {isCourseScoped ? (
+            <div className="course-scoped-badge-wrapper">
+              <span className="scoped-badge-label">
+                <Icon name="book-open" className="select-label-icon" />
+                <span>Course Schedule:</span>
+              </span>
+              <div className="course-scoped-pill" style={{ background: currentCourseTheme.gradient }}>
+                <span className="pill-dot" style={{ backgroundColor: '#ffffff' }} />
+                <span className="scoped-course-title">📚 {currentCourseName || 'Respective Course'}</span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Prominent Course Dropdown Filter */}
+              <div className="course-dropdown-wrapper">
+                <label htmlFor="course-select-filter" className="course-select-label">
+                  <Icon name="book-open" className="select-label-icon" />
+                  <span>Course Filter:</span>
+                </label>
+                <div className="custom-select-container">
+                  <select
+                    id="course-select-filter"
+                    className="course-select-dropdown"
+                    value={activeCourseId === null ? "all" : String(activeCourseId)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setActiveCourseId(val === "all" ? null : Number(val));
+                    }}
+                  >
+                    <option value="all">✨ All Courses (Overall Schedule)</option>
+                    {enrolledCourses.map((c) => (
+                      <option key={c.course_id} value={c.course_id}>
+                        📚 {c.course_name}
+                      </option>
+                    ))}
+                  </select>
+                  <Icon name="chevron-down" className="select-caret-icon" />
+                </div>
+              </div>
 
-          {/* Dynamic Quick Filter Pills */}
-          <div className="schedule-course-filter-pills">
-            <button
-              type="button"
-              className={`schedule-filter-pill ${activeCourseId === null ? 'active' : ''}`}
-              onClick={() => setActiveCourseId(null)}
-            >
-              <Icon name="layers" />
-              <span>All Courses</span>
-            </button>
-            {enrolledCourses.map((c) => {
-              const theme = getCourseTheme(c.course_name);
-              const isActive = activeCourseId === c.course_id;
-              return (
+              {/* Dynamic Quick Filter Pills */}
+              <div className="schedule-course-filter-pills">
                 <button
-                  key={c.course_id}
                   type="button"
-                  className={`schedule-filter-pill ${isActive ? 'active' : ''}`}
-                  onClick={() => setActiveCourseId(c.course_id)}
-                  style={isActive ? { background: theme.gradient, color: '#ffffff' } : {}}
+                  className={`schedule-filter-pill ${activeCourseId === null ? 'active' : ''}`}
+                  onClick={() => setActiveCourseId(null)}
                 >
-                  <span
-                    className="pill-dot"
-                    style={{ backgroundColor: isActive ? '#ffffff' : theme.textColor }}
-                  />
-                  <span>{c.course_name}</span>
+                  <Icon name="layers" />
+                  <span>All Courses</span>
                 </button>
-              );
-            })}
-          </div>
+                {enrolledCourses.map((c) => {
+                  const theme = getCourseTheme(c.course_name);
+                  const isActive = activeCourseId === c.course_id;
+                  return (
+                    <button
+                      key={c.course_id}
+                      type="button"
+                      className={`schedule-filter-pill ${isActive ? 'active' : ''}`}
+                      onClick={() => setActiveCourseId(c.course_id)}
+                      style={isActive ? { background: theme.gradient, color: '#ffffff' } : {}}
+                    >
+                      <span
+                        className="pill-dot"
+                        style={{ backgroundColor: isActive ? '#ffffff' : theme.textColor }}
+                      />
+                      <span>{c.course_name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="control-right">
@@ -400,9 +457,11 @@ export default function Schedule({ courseId = null }) {
         <div className="weekly-view-heading">
           <div className="heading-title-group">
             <h3>
-              {activeCourseId === null
-                ? "Overall Timetable (All Enrolled Courses)"
-                : `${enrolledCourses.find(c => c.course_id === activeCourseId)?.course_name || 'Course'} Schedule`}
+              {isCourseScoped
+                ? `${currentCourseName || 'Course'} Schedule`
+                : (activeCourseId === null
+                    ? "Overall Timetable (All Enrolled Courses)"
+                    : `${currentCourseName || 'Course'} Schedule`)}
             </h3>
             <p>Mon–Fri daily session breakdown & learning unit progression.</p>
           </div>

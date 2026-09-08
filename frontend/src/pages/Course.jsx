@@ -8,7 +8,6 @@ import { qaService } from '../services/qaService';
 import { caseStudyService } from '../services/caseStudyService';
 import { proctoredTestService } from '../services/proctoredTestService';
 import ProctoredTestView from './ProctoredTestView';
-import Schedule from './Schedule';
 import { useCopyProtection, requestFullScreenMode, exitFullScreenMode } from '../utils/copyProtection';
 
 // 🌟 Prop Injection: Accept courseId dynamically from DashBoard parent component shell
@@ -30,7 +29,7 @@ export default function Course({ courseId, onLockChange }) {
   const isSeekingRef = useRef(false);
 
   // Layout Sub-Views Controllers
-  const [activeMainTab, setActiveMainTab] = useState('Schedule'); 
+  const [activeMainTab, setActiveMainTab] = useState('Content'); 
   const [subView, setSubView] = useState('outline'); 
   const [activeHorizontalTab, setActiveHorizontalTab] = useState('Videos');
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -359,7 +358,6 @@ const handleSeeking = (e) => {
             <h2 className="hero-main-title">{course.title}</h2>
             <div className="hero-navigation-tabs">
               <button className={`hero-tab-item ${activeMainTab === 'Content' ? 'active-ui-tab' : ''}`} onClick={() => setActiveMainTab('Content')}>Content</button>
-              <button className={`hero-tab-item ${activeMainTab === 'Schedule' ? 'active-ui-tab' : ''}`} onClick={() => setActiveMainTab('Schedule')}>Weekly Plan</button>
               <button className={`hero-tab-item ${activeMainTab === 'Overview' ? 'active-ui-tab' : ''}`} onClick={() => setActiveMainTab('Overview')}>Overview</button>
             </div>
           </div>
@@ -379,11 +377,7 @@ const handleSeeking = (e) => {
         </div>
 
         <div className="course-workspace-scroll-area">
-          {activeMainTab === 'Schedule' ? (
-            <div style={{ marginTop: '16px', width: '100%' }}>
-              <Schedule courseId={activeCourseId} />
-            </div>
-          ) : activeMainTab === 'Content' ? (
+          {activeMainTab === 'Content' ? (
             course.modules.map(module => {
               const modDayNum = Number(module.dayNumber || module.id);
               const isLocked = modDayNum > Number(currentUnlockedDay);

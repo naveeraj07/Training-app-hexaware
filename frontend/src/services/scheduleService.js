@@ -383,6 +383,7 @@ const mockScheduleData = {
 
 function transformScheduleResponse(api, weekNumber = 0) {
   let weeks = [];
+  let totalWeeks = 1;
 
   if (api.weeks) {
     weeks = api.weeks.map((week) => ({
@@ -392,6 +393,7 @@ function transformScheduleResponse(api, weekNumber = 0) {
         sessions: (day.sessions || []).map((session) => ({ ...session }))
       }))
     }));
+    totalWeeks = weeks.length;
   } else if (api.schedule) {
     const formatDate = (dateStr) => {
       if (!dateStr) return "";
@@ -420,22 +422,27 @@ function transformScheduleResponse(api, weekNumber = 0) {
       };
     });
 
-    const totalWeekCount = Math.max(1, Math.ceil(days.length / 7));
-    const safeWeekIndex = Math.min(Math.max(weekNumber, 0), totalWeekCount - 1);
-    const startIndex = safeWeekIndex * 7;
-    const selectedWeekDays = days.slice(startIndex, startIndex + 7);
+    const totalDays = api.summary?.total_days || days.length;
+    totalWeeks = Math.max(1, Math.ceil(totalDays / 5));
+
+    // If api.schedule contains all days (length > 7), slice for this week;
+    // otherwise the backend already filtered down to this week's days
+    const isAlreadyWeekly = days.length <= 7;
+    const selectedWeekDays = isAlreadyWeekly
+      ? days
+      : days.slice(weekNumber * 5, (weekNumber + 1) * 5);
 
     const startRange = selectedWeekDays.length > 0 && selectedWeekDays[0].date
-      ? formatDate((api.schedule[startIndex] || api.schedule[0])?.date)
+      ? formatDate(api.schedule[isAlreadyWeekly ? 0 : weekNumber * 5]?.date)
       : "";
     const endRange = selectedWeekDays.length > 0 && selectedWeekDays[selectedWeekDays.length - 1].date
-      ? formatDate((api.schedule[Math.min(startIndex + selectedWeekDays.length - 1, api.schedule.length - 1)] || api.schedule[api.schedule.length - 1])?.date)
+      ? formatDate(api.schedule[isAlreadyWeekly ? (days.length - 1) : Math.min((weekNumber + 1) * 5 - 1, api.schedule.length - 1)]?.date)
       : "";
     const range = startRange && endRange ? `${startRange} - ${endRange}` : "";
 
     weeks = [
       {
-        label: `Week ${safeWeekIndex + 1}`,
+        label: `Week ${weekNumber + 1}`,
         range,
         days: selectedWeekDays
       }
@@ -444,6 +451,9 @@ function transformScheduleResponse(api, weekNumber = 0) {
 
   return {
     title: api.course_name,
+    course_name: api.course_name,
+    course_id: api.course_id,
+    totalWeeks: totalWeeks || 1,
     stats: [
       {
         label: "Modules",
